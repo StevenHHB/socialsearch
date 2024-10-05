@@ -80,14 +80,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             const currentBatchSize = Math.min(batchSize, remainingResults);
 
             try {
-                const [postResults, commentResults] = await Promise.all([
-                    fetchWithRetry(keyword, 'posts', Math.ceil(currentBatchSize / 2)),
-                    fetchWithRetry(keyword, 'comments', Math.floor(currentBatchSize / 2)),
-                ]);
+                // Change the ratio to 75% comments and 25% posts
+                const commentBatchSize = Math.ceil(currentBatchSize * 0.75);
+                const postBatchSize = currentBatchSize - commentBatchSize;
+
+                // Search comments first
+                const commentResults = await fetchWithRetry(keyword, 'comments', commentBatchSize);
+                const postResults = await fetchWithRetry(keyword, 'posts', postBatchSize);
 
                 const batchLeads = [
-                    ...(postResults?.results || []), 
-                    ...(commentResults?.results || [])
+                    ...(commentResults?.results || []),  // Comments first
+                    ...(postResults?.results || [])
                 ].map(result => ({
                     content: result.content,
                     url: result.url,
