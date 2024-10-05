@@ -18,80 +18,85 @@ const plans = [
     title: "Free",
     monthlyPrice: 0,
     yearlyPrice: 0,
-    description: "Try it out for free",
+    description: "Dip your toes into AI-powered lead generation",
     features: [
-      "1 Lead Find per month",
-      "1 Reply Generation per month",
-      "Basic Analytics",
-      "Email Support"
+      "1 Lead Generartion / Month",
+      "1 Smart Lead Reply Generations / Month",
+      "Basic Analytics Dashboard",
+      "Community Support"
     ],
     actionLabel: "Start for Free",
     icon: Zap,
+    highlight: "Perfect to Try Out",
   },
   {
     title: "Small",
     monthlyPrice: 9.99,
     yearlyPrice: 71.99,
-    description: "Perfect for small projects",
+    description: "Supercharge your outreach efforts",
     features: [
-      "20 Lead Finds per month",
-      "20 Reply Generations per month",
-      "Basic Analytics",
-      "Email Support"
+      "1,000 Leads / Month (20x Free)",
+      "20 Smart Lead Reply Generations / Month",
+      "Advanced Analytics & Insights",
+      "Priority Email Support"
     ],
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_SMALL_MONTHLY,
     yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_SMALL_YEARLY,
-    actionLabel: "Get Started",
+    actionLabel: "Accelerate Your Growth",
     icon: Zap,
+    highlight: "Most popular for startups",
   },
   {
     title: "Pro",
     monthlyPrice: 39.99,
     yearlyPrice: 287.99,
-    description: "Ideal for growing businesses",
+    description: "Unlock full potential for serious businesses",
     features: [
-      "100 Lead Finds per month",
-      "100 Reply Generations per month",
-      "Advanced Analytics",
-      "Priority Support"
+      "5,000 Leads / Month (100x Free)",
+      "100 Smart Lead Reply Generations / Month",
+      "Premium Analytics Suite",
+      "Dedicated Account Manager"
     ],
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
     yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
-    actionLabel: "Go Pro",
+    actionLabel: "Dominate Your Market",
     icon: Target,
     popular: true,
+    highlight: "Best value for growing teams",
   },
   {
     title: "Team",
     monthlyPrice: 99.99,
     yearlyPrice: 719.99,
-    description: "Best for small teams",
+    description: "Enterprise-grade power for rapid scaling",
     features: [
-      "300 Lead Finds per month",
-      "300 Reply Generations per month",
-      "Team Collaboration Tools",
-      "24/7 Support"
+      "15,000 Leads / Month (300x Free)",
+      "300 Smart Lead Reply Generations / Month",
+      "Advanced Team Collaboration Tools",
+      "24/7 Premium Support"
     ],
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TEAM_MONTHLY,
     yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TEAM_YEARLY,
-    actionLabel: "Upgrade to Team",
+    actionLabel: "Scale to New Heights",
     icon: Users,
+    highlight: "Ideal for fast-growing companies",
   },
   {
     title: "Enterprise",
     monthlyPrice: 199.99,
     yearlyPrice: 1439.99,
-    description: "For large organizations",
+    description: "Customized solutions for large organizations",
     features: [
-      "1000 Lead Finds per month",
-      "1000 Reply Generations per month",
-      "Custom Integrations",
-      "Dedicated Account Manager"
+      "50,000 Leads / Month (1000x Free)",
+      "1,000 Smart Lead Reply Generations / Month",
+      "Custom AI Model Training",
+      "Dedicated Integration Specialist"
     ],
     monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE_MONTHLY,
     yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE_YEARLY,
-    actionLabel: "Upgrade to Enterprise",
+    actionLabel: "Transform Your Business",
     icon: Building,
+    highlight: "Tailored for enterprise needs",
   },
 ];
 
@@ -189,11 +194,11 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-base font-semibold leading-7 text-blue-600 dark:text-blue-400">Pricing</h2>
           <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-            Choose Your Plan
+            Supercharge Your Lead Generation
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-gray-300">
-          Unlock the power of AI-driven lead generation with our flexible plan options.
+          Choose the perfect plan to skyrocket your outreach and convert more leads with AI-powered precision.
         </p>
         
         <div className="mt-8 flex justify-center items-center space-x-4">
@@ -237,6 +242,9 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
                       /{isYearly ? 'year' : 'month'}
                     </span>
                   </p>
+                  {plan.highlight && (
+                    <p className="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400">{plan.highlight}</p>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
