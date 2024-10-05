@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   MessageSquare,
   SquareDashedMousePointer,
-  HomeIcon
+  HomeIcon,
+  Users
 } from "lucide-react"
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -38,6 +39,8 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
     expanded: { opacity: 1, x: 0 },
     collapsed: { opacity: 0, x: -20 }
   };
+
+  const remainingLeads = remainingLeadFinds * 50; // Calculate remaining leads
 
   return (
     <motion.div
@@ -114,9 +117,50 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
         </div>
       </div>
 
-      {/* Bottom Section with Remaining Searches, Replies, and Upgrade Button */}
+      {/* Bottom Section with Remaining Leads, Searches, Replies, and Upgrade Button */}
       <div className="mt-auto p-4 space-y-6 bg-gray-50 dark:bg-gray-800 border-t">
         <div className="space-y-4">
+          {/* Remaining Leads (New) */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-white p-1 shadow-sm">
+                <Users className="h-5 w-5 text-green-500" />
+              </div>
+              <span className="font-medium text-sm">Remaining Leads</span>
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Progress
+                      value={(remainingLeads / 5000) * 100}
+                      className={clsx(
+                        'h-2 w-full',
+                        remainingLeads > 2500
+                          ? 'bg-green-500'
+                          : remainingLeads > 1000
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                      )}
+                    />
+                    <motion.div
+                      className="mt-2 text-center font-bold text-2xl"
+                      key={remainingLeads}
+                      initial={{ scale: 1.5, color: '#22c55e' }}
+                      animate={{ scale: 1, color: '#000000' }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {remainingLeads}
+                    </motion.div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Remaining leads this month</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
           {/* Remaining Searches */}
           <div className="space-y-1">
             <div className="flex items-center gap-3">
@@ -152,7 +196,7 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Remaining lead searches</p>
+                  <p>Remaining lead searches this month</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -193,11 +237,16 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Remaining reply generations</p>
+                  <p>Remaining reply generations this month</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
+        </div>
+
+        {/* Monthly Limit Indicator */}
+        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+          Monthly Limits
         </div>
 
         {/* Upgrade Now Button */}

@@ -290,7 +290,7 @@ export default function ProjectPage() {
             <CardTitle className="text-2xl font-bold mb-4 sm:mb-0">Lead Analytics</CardTitle>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="text-sm text-muted-foreground">
-                Remaining Lead Finds: {remainingLeadFinds}
+                Remaining Leads: {remainingLeadFinds * 50}
               </div>
               <Button
                 onClick={findLeads}
