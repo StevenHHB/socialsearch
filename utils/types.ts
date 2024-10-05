@@ -7,7 +7,7 @@ export interface userCreateProps {
   profile_image_url?: string;
   user_id: string;
   remaining_lead_finds: number;
-  remaining_reply_generations: number; // {{ edit_1 }} Added remaining_generations to the type definition
+  remaining_reply_generations: number;
 }
 
 const userCreateSchema = z.object({

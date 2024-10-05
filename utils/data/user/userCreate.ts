@@ -36,6 +36,8 @@ export const userCreate = async ({
           last_name,
           profile_image_url,
           user_id,
+          remaining_lead_finds: 1,
+          remaining_reply_generations: 1,
         },
       ])
       .select();
