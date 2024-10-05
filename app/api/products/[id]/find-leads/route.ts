@@ -6,6 +6,26 @@ import prisma from '@/lib/prisma';
 import { redditSearchPosts, redditSearchComments } from '@/lib/socialSearch';
 import { supabase } from '@/lib/supabase';
 
+const maxRetries = 3;
+const retryDelay = 1000;
+
+async function fetchWithRetry(keyword: string, type: 'posts' | 'comments', size: number) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const result = type === 'posts' 
+                ? await redditSearchPosts(keyword, size)
+                : await redditSearchComments(keyword, size);
+            return result;
+        } catch (error: any) {
+            if (error.message.includes('Rate limit exceeded') && i < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+            } else {
+                throw error;
+            }
+        }
+    }
+}
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
     const { userId } = getAuth(request);
 
@@ -50,20 +70,25 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const allLeads = [];
         let keywordIndex = 0;
-        let batchSize = 10;
+        const batchSize = 20;
+        const maxRetries = 3;
+        const retryDelay = 1000;
 
         while (Date.now() - startTime < timeLimit && allLeads.length < 50 && keywordIndex < keywords.length) {
             const keyword = keywords[keywordIndex];
-            const remainingResults = resultsPerKeyword - (allLeads.length % resultsPerKeyword);
+            const remainingResults = Math.min(50 - allLeads.length, resultsPerKeyword);
             const currentBatchSize = Math.min(batchSize, remainingResults);
 
             try {
                 const [postResults, commentResults] = await Promise.all([
-                    redditSearchPosts(keyword, Math.ceil(currentBatchSize / 2)),
-                    redditSearchComments(keyword, Math.floor(currentBatchSize / 2)),
+                    fetchWithRetry(keyword, 'posts', Math.ceil(currentBatchSize / 2)),
+                    fetchWithRetry(keyword, 'comments', Math.floor(currentBatchSize / 2)),
                 ]);
 
-                const batchLeads = [...postResults.results, ...commentResults.results].map(result => ({
+                const batchLeads = [
+                    ...(postResults?.results || []), 
+                    ...(commentResults?.results || [])
+                ].map(result => ({
                     content: result.content,
                     url: result.url,
                     authorName: result.author_name,
@@ -86,15 +111,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 allLeads.push(...batchLeads);
 
-                if (allLeads.length % resultsPerKeyword === 0) {
+                if (allLeads.length >= resultsPerKeyword * (keywordIndex + 1)) {
                     keywordIndex++;
                 }
             } catch (error: any) {
-                if (error.message.includes('Rate limit exceeded')) {
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
-                } else {
-                    throw error;
-                }
+                console.error(`Error fetching leads for keyword "${keyword}":`, error);
+                keywordIndex++; // Move to the next keyword on error
             }
         }
 
