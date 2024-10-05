@@ -15,6 +15,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     try {
         const productId = parseInt(params.id);
+        const startTime = Date.now();
+        const timeLimit = 10000; // 10 seconds in milliseconds
 
         // Fetch the product and verify ownership
         const product = await prisma.product.findUnique({
@@ -44,80 +46,63 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         // Split keywords and determine the number of results per keyword
         const keywords = product.keywords.split(',').map(k => k.trim()).filter(k => k);
-        const resultsPerKeyword = Math.floor(50 / keywords.length);
-        const postsPerKeyword = Math.ceil(resultsPerKeyword / 2);
-        const commentsPerKeyword = resultsPerKeyword - postsPerKeyword;
+        const resultsPerKeyword = Math.ceil(50 / keywords.length);
 
-        // Call the Reddit search functions for each keyword
-        const allPostResults = [];
-        const allCommentResults = [];
+        const allLeads = [];
+        let keywordIndex = 0;
+        let batchSize = 10;
 
-        for (const keyword of keywords) {
+        while (Date.now() - startTime < timeLimit && allLeads.length < 50 && keywordIndex < keywords.length) {
+            const keyword = keywords[keywordIndex];
+            const remainingResults = resultsPerKeyword - (allLeads.length % resultsPerKeyword);
+            const currentBatchSize = Math.min(batchSize, remainingResults);
+
             try {
                 const [postResults, commentResults] = await Promise.all([
-                    redditSearchPosts(keyword, postsPerKeyword),
-                    redditSearchComments(keyword, commentsPerKeyword),
+                    redditSearchPosts(keyword, Math.ceil(currentBatchSize / 2)),
+                    redditSearchComments(keyword, Math.floor(currentBatchSize / 2)),
                 ]);
-                allPostResults.push(...postResults.results);
-                allCommentResults.push(...commentResults.results);
+
+                const batchLeads = [...postResults.results, ...commentResults.results].map(result => ({
+                    content: result.content,
+                    url: result.url,
+                    authorName: result.author_name,
+                    authorId: result.author_id,
+                    authorUrl: result.author_url,
+                    creationDate: new Date(result.creation_date),
+                    subredditName: result.subreddit_name,
+                    subredditUrl: result.subreddit_url,
+                    subredditTitle: result.subreddit_title,
+                    score: result.score,
+                    nsfw: result.nsfw,
+                    contentLanguage: result.content_language,
+                    upvoteRatio: result.upvote_ratio || 0,
+                    numComments: result.num_comments || 0,
+                    contentType: result.content_type || '',
+                    postTitle: 'post_title' in result ? result.post_title : result.content,
+                    postUrl: 'post_url' in result ? result.post_url : result.url,
+                    productId: product.id,
+                }));
+
+                allLeads.push(...batchLeads);
+
+                if (allLeads.length % resultsPerKeyword === 0) {
+                    keywordIndex++;
+                }
             } catch (error: any) {
                 if (error.message.includes('Rate limit exceeded')) {
-                    return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a minute.' }, { status: 429 });
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
                 } else {
                     throw error;
                 }
             }
         }
 
-        // Prepare the leads data
-        const leadsData = [
-            ...allPostResults.map((result) => ({
-                content: result.content, // For posts, content is the title
-                url: result.url,
-                authorName: result.author_name,
-                authorId: result.author_id,
-                authorUrl: result.author_url,
-                creationDate: new Date(result.creation_date),
-                subredditName: result.subreddit_name,
-                subredditUrl: result.subreddit_url,
-                subredditTitle: result.subreddit_title,
-                score: result.score,
-                nsfw: result.nsfw,
-                contentLanguage: result.content_language,
-                upvoteRatio: result.upvote_ratio || 0,
-                numComments: result.num_comments || 0,
-                contentType: result.content_type || '',
-                postTitle: result.content, // For posts, content is the title
-                postUrl: result.url,
-                productId: product.id,
-            })),
-            ...allCommentResults.map((result) => ({
-                content: result.content, // For comments, content is the text
-                url: result.url,
-                authorName: result.author_name,
-                authorId: result.author_id,
-                authorUrl: result.author_url,
-                creationDate: new Date(result.creation_date),
-                subredditName: result.subreddit_name,
-                subredditUrl: result.subreddit_url,
-                subredditTitle: result.subreddit_title,
-                score: result.score,
-                nsfw: result.nsfw,
-                contentLanguage: result.content_language,
-                postTitle: result.post_title,
-                postUrl: result.post_url,
-                productId: product.id,
-            })),
-        ];
-
         // Insert leads into the database
-        const createdLeads = [];
-        for (const leadData of leadsData) {
-            const lead = await prisma.lead.create({
-                data: leadData,
-            });
-            createdLeads.push(lead);
-        }
+        const createdLeads = await prisma.lead.createMany({
+            data: allLeads,
+            skipDuplicates: true,
+        });
 
         // Decrement remaining lead finds
         const { error: updateError } = await supabase
@@ -129,7 +114,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             console.error('Error updating remaining lead finds:', updateError);
         }
 
-        return NextResponse.json({ leads: createdLeads }, { status: 200 });
+        return NextResponse.json({ leads: createdLeads.count, totalTime: Date.now() - startTime }, { status: 200 });
 
     } catch (error: any) {
         console.error('Error finding leads:', error);

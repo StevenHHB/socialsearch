@@ -13,6 +13,7 @@ import { Badge } from '../../../../components/ui/badge'
 import { format } from 'date-fns'
 import { Dialog, DialogContent, DialogTitle } from '../../../../components/ui/dialog'
 import { AnimatePresence } from 'framer-motion'
+import { toast } from 'react-toastify'
 
 interface Product {
   id: number
@@ -85,21 +86,24 @@ export default function ProjectPage() {
   }
 
   const findLeads = async () => {
-    if (!product) return
-    setIsSearching(true)
-    setError(null)
+    if (!product) return;
+    setIsSearching(true);
+    setError(null);
     try {
-      const response = await fetch(`/api/products/${product.id}/find-leads`, { method: 'POST' })
-      if (!response.ok) throw new Error('Failed to find leads')
-      const data = await response.json()
-      setProduct((prev) => (prev ? { ...prev, leads: [...prev.leads, ...data.leads] } : null))
+      const response = await fetch(`/api/products/${product.id}/find-leads`, { method: 'POST' });
+      if (!response.ok) throw new Error('Failed to find leads');
+      const data = await response.json();
+      // Refresh the product data to get the new leads
+      await fetchProduct();
+      setIsSearching(false);
+      // Optionally, you can show a success message with the number of leads found
+      toast.success(`Found ${data.leads} leads in ${data.totalTime / 1000} seconds`);
     } catch (err: any) {
-      console.error('Error finding leads:', err)
-      setError('Failed to find leads: ' + err.message)
-    } finally {
-      setIsSearching(false)
+      console.error('Error finding leads:', err);
+      setError('Failed to find leads: ' + err.message);
+      setIsSearching(false);
     }
-  }
+  };
 
   const generateReply = async (leadId: string) => {
     if (!product) return
