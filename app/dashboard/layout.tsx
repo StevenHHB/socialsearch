@@ -39,21 +39,24 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-      <Analytics/>
-      <DashboardSideBar 
-        remainingLeadFinds={remainingLeadFinds} 
-        remainingReplyGenerations={remainingReplyGenerations} 
-      />
-      <DashboardTopNav>
-        <main className="flex flex-col gap-4 p-4 lg:gap-6">
-          {authorized ? (
-            children
-          ) : (
-            <NotAuthorized message={message} />
-          )}
-        </main>
-      </DashboardTopNav>
+    <div className="flex h-screen overflow-hidden">
+      <div className="w-64 flex-shrink-0">
+        <DashboardSideBar 
+          remainingLeadFinds={remainingLeadFinds} 
+          remainingReplyGenerations={remainingReplyGenerations} 
+        />
+      </div>
+      <div className="flex-1 overflow-auto">
+        <DashboardTopNav>
+          <main className="flex flex-col gap-4 p-4 lg:gap-6">
+            {authorized ? (
+              children
+            ) : (
+              <NotAuthorized message={message} />
+            )}
+          </main>
+        </DashboardTopNav>
+      </div>
     </div>
   )
 }

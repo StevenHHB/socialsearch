@@ -27,7 +27,23 @@ const nextConfig = {
       port: '',
       pathname: '/**'
     }],
-    domains: ['plus.unsplash.com', 'images.unsplash.com'] // Add the required domains here
+    domains: ['plus.unsplash.com', 'images.unsplash.com', 'seo-heist.s3.amazonaws.com', 'github.com', 'ansubkhan.com', 'utfs.io'] // Add all required domains here
   }
 };
-module.exports = nextConfig;
+
+const withSvgr = require('next-svgr');
+
+module.exports = withSvgr({
+  // other Next.js config options
+});
+
+module.exports = {
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"]
+    });
+
+    return config;
+  }
+};

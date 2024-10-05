@@ -5,17 +5,17 @@ import PageWrapper from "@/components/wrapper/page-wrapper";
 import { VideoPlayer } from '@/components/video-player';
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://usedotcom.com"),
-  keywords: [''],
-  title: 'Marketing page',
+  metadataBase: new URL("https://socialtargeter.com"),
+  keywords: ['social media lead generation', 'AI-powered leads', 'personalized engagement'],
+  title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
   openGraph: {
-    description: 'Put description of the page.',
+    description: 'Discover and engage potential leads on social media with SocialTargeter and its AI-powered platform.',
     images: ['']
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'useDotCom',
-    description: 'useDotCom',
+    title: 'SocialTargeter',
+    description: 'AI-Powered Social Media Lead Generation',
     siteId: "",
     creator: "@stevenhhb",
     creatorId: "",

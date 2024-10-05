@@ -1,119 +1,125 @@
 "use client";
 
-import React from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { loadStripe } from "@stripe/stripe-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Zap, Target, Rocket } from "lucide-react";
-import { toast } from "sonner";
+import { CheckCircle2, Zap, Target, Users, Building } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-
-// Ensure Stripe is initialized outside of component rendering for performance
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+import { Switch } from "@/components/ui/switch";
 
 const plans = [
   {
-    title: "3X Starter Pack",
-    price: 9.99,
-    description: "Perfect for small projects",
+    title: "Free",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    description: "Try it out for free",
     features: [
-      "3 Project Generations",
-      "100-200 Domain Suggestions per Project",
-      "Availability Check",
-      "Value and Price Analysis",
-      "3-5 Best Domain Recommendations"
+      "1 Lead Find per month",
+      "1 Reply Generation per month",
+      "Basic Analytics",
+      "Email Support"
     ],
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_3_GEN,
-    actionLabel: "Purchase Now",
+    actionLabel: "Start for Free",
     icon: Zap,
   },
   {
-    title: "10X Pro Pack",
-    price: 24.99,
-    description: "Ideal for medium-sized projects",
+    title: "Small",
+    monthlyPrice: 9.99,
+    yearlyPrice: 71.99,
+    description: "Perfect for small projects",
     features: [
-      "10 Project Generations",
-      "100-200 Domain Suggestions per Project",
-      "Availability Check for each domain",
-      "Advanced Value and Price Analysis",
-      "5-10 Final Curated Domain Recommendations",
-      "Priority Processing"
+      "20 Lead Finds per month",
+      "20 Reply Generations per month",
+      "Basic Analytics",
+      "Email Support"
     ],
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_10_GEN,
-    actionLabel: "Get Now",
+    monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_SMALL_MONTHLY,
+    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_SMALL_YEARLY,
+    actionLabel: "Get Started",
+    icon: Zap,
+  },
+  {
+    title: "Pro",
+    monthlyPrice: 39.99,
+    yearlyPrice: 287.99,
+    description: "Ideal for growing businesses",
+    features: [
+      "100 Lead Finds per month",
+      "100 Reply Generations per month",
+      "Advanced Analytics",
+      "Priority Support"
+    ],
+    monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY,
+    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_YEARLY,
+    actionLabel: "Go Pro",
     icon: Target,
     popular: true,
   },
   {
-    title: "20X Mega Pack",
-    price: 49.99,
-    description: "Best for large projects",
+    title: "Team",
+    monthlyPrice: 99.99,
+    yearlyPrice: 719.99,
+    description: "Best for small teams",
     features: [
-      "20 Project Generations",
-      "100-200 Domain Suggestions per Project",
-      "Real-time Availability Check",
-      "Premium Value and Price Analysis",
-      "Expert Domain Recommendations",
-      "Priority Processing",
-      "Extended AI-driven Insights"
+      "300 Lead Finds per month",
+      "300 Reply Generations per month",
+      "Team Collaboration Tools",
+      "24/7 Support"
     ],
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_20_GEN,
-    actionLabel: "Purchase Now",
-    icon: Rocket,
+    monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TEAM_MONTHLY,
+    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_TEAM_YEARLY,
+    actionLabel: "Upgrade to Team",
+    icon: Users,
+  },
+  {
+    title: "Enterprise",
+    monthlyPrice: 199.99,
+    yearlyPrice: 1439.99,
+    description: "For large organizations",
+    features: [
+      "1000 Lead Finds per month",
+      "1000 Reply Generations per month",
+      "Custom Integrations",
+      "Dedicated Account Manager"
+    ],
+    monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE_MONTHLY,
+    yearlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE_YEARLY,
+    actionLabel: "Upgrade to Enterprise",
+    icon: Building,
   },
 ];
 
-export default function PricingCard() {
+interface PricingCardProps {
+  hideFreePlan?: boolean;
+  currentPlan?: string;
+}
+
+export default function PricingCard({ hideFreePlan = false, currentPlan }: PricingCardProps) {
   const { user } = useUser();
   const router = useRouter();
-  
-  const handleCheckout = async (priceId: string) => {
-    if (!user) {
-      toast("Please login or sign up to purchase", {
-        description: "You must be logged in to make a purchase",
-        action: {
-          label: "Sign Up",
-          onClick: () => router.push("/sign-up"),
-        },
-      });
-      return;
-    }
+  const [isYearly, setIsYearly] = useState(false);
 
-    const stripe = await stripePromise;
-    if (!stripe) {
-      toast("Stripe failed to initialize. Please try again.");
-      console.error("Stripe failed to initialize.");
-      return;
-    }
+  const filteredPlans = hideFreePlan ? plans.filter(plan => plan.title !== "Free") : plans;
+  const gridCols = filteredPlans.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-5';
 
-    try {
-      const { data } = await axios.post("/api/payments/create-checkout-session", {
-        priceId,
-        userId: user.id,
-        userEmail: user.primaryEmailAddress?.emailAddress || "",
-      });
+  const handlePlanSelection = (planTitle: string) => {
+    // Here you would implement the logic to update the user's subscription
+    console.log(`Selected plan: ${planTitle}`);
+    // You might want to redirect to a confirmation page or show a modal
+  };
 
-      if (data.sessionId) {
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: data.sessionId,
-        });
-
-        if (error) {
-          console.error("Error redirecting to checkout:", error);
-          toast("There was an error redirecting to the checkout page.");
-        }
-      } else {
-        toast("Failed to create checkout session.");
-        console.error("Failed to create checkout session.");
-      }
-    } catch (error) {
-      console.error("Error during checkout:", error);
-      toast("Error during checkout. Please try again.");
-    }
+  const getButtonText = (planTitle: string) => {
+    if (!user || !currentPlan) return planTitle === "Free" ? "Start for Free" : `Get ${planTitle}`;
+    
+    const currentPlanIndex = plans.findIndex(plan => plan.title === currentPlan);
+    const thisPlanIndex = plans.findIndex(plan => plan.title === planTitle);
+    
+    if (planTitle === currentPlan) return "Current Plan";
+    if (thisPlanIndex < currentPlanIndex) return `Downgrade to ${planTitle}`;
+    return `Upgrade to ${planTitle}`;
   };
 
   return (
@@ -122,22 +128,33 @@ export default function PricingCard() {
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-base font-semibold leading-7 text-blue-600 dark:text-blue-400">Pricing</h2>
           <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-            Choose Your Domain Generation Pack
+            Choose Your Plan
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-gray-300">
-          Unlock the power of AI-driven domain suggestions with our flexible pack options. Each pack includes comprehensive domain analysis and recommendations.
+          Unlock the power of AI-driven lead generation with our flexible plan options.
         </p>
         
-        <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {plans.map((plan, planIdx) => (
+        <div className="mt-8 flex justify-center items-center space-x-4">
+          <span className="text-sm font-medium text-gray-900 dark:text-white">Monthly</span>
+          <Switch
+            checked={isYearly}
+            onCheckedChange={setIsYearly}
+            className="bg-blue-600 dark:bg-blue-400"
+          />
+          <span className="text-sm font-medium text-gray-900 dark:text-white">Yearly (Save 40%)</span>
+        </div>
+
+        <div className={`isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none md:grid-cols-2 ${gridCols}`}>
+          {filteredPlans.map((plan, planIdx) => (
             <motion.div
               key={plan.title}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: planIdx * 0.1 }}
+              className="flex"
             >
-              <Card className={`relative flex flex-col justify-between h-full ring-1 ring-gray-200 dark:ring-gray-700 ${plan.popular ? 'ring-2 ring-blue-600 dark:ring-blue-400' : ''}`}>
+              <Card className={`relative flex flex-col justify-between h-full ring-1 ring-gray-200 dark:ring-gray-700 ${plan.popular ? 'ring-2 ring-blue-600 dark:ring-blue-400' : ''} ${currentPlan === plan.title ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
                 {plan.popular && (
                   <div className="absolute top-0 right-0 -mr-1 -mt-1 z-10">
                     <Badge variant="secondary" className="bg-blue-600 text-white dark:bg-blue-400 dark:text-gray-900">
@@ -152,8 +169,12 @@ export default function PricingCard() {
                   </div>
                   <CardDescription className="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-300">{plan.description}</CardDescription>
                   <p className="mt-6 flex items-baseline gap-x-1">
-                    <span className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">${plan.price}</span>
-                    <span className="text-sm font-semibold leading-6 text-gray-600 dark:text-gray-300">/pack</span>
+                    <span className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                      ${isYearly ? plan.yearlyPrice : plan.monthlyPrice}
+                    </span>
+                    <span className="text-sm font-semibold leading-6 text-gray-600 dark:text-gray-300">
+                      /{isYearly ? 'year' : 'month'}
+                    </span>
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -166,12 +187,13 @@ export default function PricingCard() {
                     ))}
                   </ul>
                 </CardContent>
-                <CardFooter className="mt-8">
+                <CardFooter>
                   <Button
-                    onClick={() => handleCheckout(plan.priceId!)}
-                    className={`w-full ${plan.popular ? 'bg-blue-600 text-white hover:bg-blue-500 dark:bg-blue-400 dark:text-gray-900 dark:hover:bg-blue-300' : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700'}`}
+                    onClick={() => handlePlanSelection(plan.title)}
+                    className={`mt-8 block w-full ${currentPlan === plan.title ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                    disabled={currentPlan === plan.title}
                   >
-                    {plan.actionLabel}
+                    {getButtonText(plan.title)}
                   </Button>
                 </CardFooter>
               </Card>

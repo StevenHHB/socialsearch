@@ -25,7 +25,7 @@ export default function NavBar() {
                 {/* Home Button with Link */}
                 <Link href="/" className="flex items-center mr-6" aria-label="Home">
                     <SquareDashedMousePointer className="h-6 w-6 mr-2" aria-hidden="true" />
-                    <span className="font-semibold text-lg">useDotCom</span>
+                    <span className="font-semibold text-lg">SocialTargeter</span>
                 </Link>
 
                 {/* Desktop Navigation Links */}

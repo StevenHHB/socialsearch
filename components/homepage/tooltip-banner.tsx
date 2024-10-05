@@ -19,7 +19,7 @@ const TooltipBanner = () => {
   return (
     <div className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 text-sm font-medium flex justify-between items-center">
       <div className="flex-1 text-center">
-        Limited offer: Get 1 free project generation by signing up now!
+        Limited offer: Get 1 free project by signing up now!
       </div>
       <Link href="/sign-up" className="bg-white text-blue-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors duration-200">
         Sign Up

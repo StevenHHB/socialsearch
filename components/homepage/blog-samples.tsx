@@ -34,7 +34,7 @@ export default function BlogSample() {
       <div className='flex flex-col items-center p-3 w-full max-w-6xl'>
         <div className='flex flex-col justify-start items-center gap-4 w-full mb-12'>
           <h2 className={`${TITLE_TAILWIND_CLASS} font-bold tracking-tight text-gray-900 dark:text-white text-center`}>
-            Insights from the useDotCom Blog
+            Insights from the SocialTargeter Blog
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 text-center max-w-2xl">
             Dive into our latest articles on domain strategies, AI technology, and online branding.

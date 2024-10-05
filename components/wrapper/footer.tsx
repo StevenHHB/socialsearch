@@ -28,7 +28,7 @@ export default function Footer() {
                             <div>
                                 <h3 className="text-2xl font-medium">Subscribe to Offers & Newsletters</h3>
                                 <p className="mt-4 max-w-lg  ">
-                                Subscribe for exclusive Offers & Newsletters
+                                Subscribe for exclusive tips on social media lead generation and engagement strategies.
                                 </p>
                             </div>
                             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col border rounded-xl p-4 gap-3 mt-6 w-full">
@@ -84,7 +84,7 @@ export default function Footer() {
                                 </li>
                             </ul>
 
-                            <p className="mt-8 text-xs  ">&copy; 2024. HHB useDotCom. All rights reserved.</p>
+                            <p className="mt-8 text-xs  ">&copy; 2024. SocialTargeter. All rights reserved.</p>
                         </div>
                     </div>
                 </div>

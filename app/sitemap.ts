@@ -18,7 +18,7 @@ type SitemapEntry = {
 };
 
 export default async function sitemap(): Promise<SitemapEntry[]> {
-  const baseUrl = "https://usedotcom.com";
+  const baseUrl = "https://socialtargeter.com";
 
   const staticPages: SitemapEntry[] = [
     {

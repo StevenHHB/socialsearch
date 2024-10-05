@@ -4,44 +4,44 @@ import { TITLE_TAILWIND_CLASS } from '@/utils/constants'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faClipboardList, faIndustry, faCheckCircle, faChartLine, faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import { faRobot, faChartLine, faUserFriends, faLightbulb, faCog, faShieldAlt } from '@fortawesome/free-solid-svg-icons'
 
 const FeatureData = [
   {
     id: 1,
-    name: 'AI-Powered Search',
-    description: 'Harness the power of AI to discover unique and available .com domains in seconds.',
-    icon: faSearch,
+    name: 'AI-Powered Lead Discovery',
+    description: 'Our advanced algorithms analyze social media profiles to identify high-quality leads tailored to your business.',
+    icon: faRobot,
   },
   {
     id: 2,
-    name: 'Bulk Generation',
-    description: 'Generate hundreds of domain ideas simultaneously, saving you time and effort.',
-    icon: faClipboardList,
-  },
-  {
-    id: 3,
-    name: 'Industry-Specific Suggestions',
-    description: 'Get tailored domain suggestions based on your industry and target audience.',
-    icon: faIndustry,
-  },
-  {
-    id: 4,
-    name: 'Instant Availability Check',
-    description: 'Real-time domain availability checks to ensure you never miss out on the perfect .com.',
-    icon: faCheckCircle,
-  },
-  {
-    id: 5,
-    name: 'SEO-Friendly Analysis',
-    description: 'Evaluate the SEO potential of each domain to boost your online presence.',
+    name: 'Multi-Platform Analysis',
+    description: 'Simultaneously search for leads across multiple social media platforms, expanding your reach and opportunities.',
     icon: faChartLine,
   },
   {
+    id: 3,
+    name: 'Personalized Engagement',
+    description: 'Generate customized outreach messages for each lead, increasing your chances of successful connections.',
+    icon: faUserFriends,
+  },
+  {
+    id: 4,
+    name: 'Smart Recommendations',
+    description: 'Receive intelligent suggestions for optimizing your lead generation and engagement strategies.',
+    icon: faLightbulb,
+  },
+  {
+    id: 5,
+    name: 'Automated Workflows',
+    description: 'Set up automated lead nurturing sequences to save time and improve conversion rates.',
+    icon: faCog,
+  },
+  {
     id: 6,
-    name: 'One-Click Registration',
-    description: 'Seamlessly register your chosen domain without leaving the platform.',
-    icon: faUserPlus,
+    name: 'Data Privacy & Security',
+    description: 'Rest easy knowing your data and your leads\' information is protected with enterprise-grade security.',
+    icon: faShieldAlt,
   },
 ]
 
@@ -50,10 +50,10 @@ const SpringAnimatedFeatures = () => {
     <div className="flex flex-col justify-center items-center lg:w-[85%]">
       <div className='flex flex-col mb-[4rem]'>
         <h2 className={`${TITLE_TAILWIND_CLASS} mt-2 font-bold tracking-tight text-gray-900 dark:text-white`}>
-          Discover Your Perfect .com with useDotCom
+          Discover Your Perfect Leads with SocialTargeter
         </h2>
         <p className="mx-auto max-w-[600px] text-gray-600 dark:text-gray-400 text-center mt-4 text-lg">
-          Unleash the power of AI to find and secure your ideal .com domain in minutes, not hours.
+          Unleash the power of AI to find and engage with ideal leads across social media platforms in minutes, not hours.
         </p>
       </div>
       <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -89,7 +89,7 @@ const SpringAnimatedFeatures = () => {
           whileTap={{ scale: 0.95 }}
           className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors duration-300"
         >
-          Try useDotCom Now
+          Try SocialTargeter Now
         </motion.button>
       </Link>
     </div>

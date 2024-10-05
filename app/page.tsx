@@ -7,7 +7,7 @@ import SideBySide from "@/components/homepage/side-by-side";
 import PageWrapper from "@/components/wrapper/page-wrapper";
 import config from "@/config";
 import TooltipBanner from "@/components/homepage/tooltip-banner";
-
+import LandingPage from "@/components/homepage/demo";
 export default function Home() {
   return (
     <PageWrapper>
@@ -20,9 +20,6 @@ export default function Home() {
       </div>
       <div className="flex flex-col p-2 w-full justify-center items-center">
         <MarketingCards />
-      </div>
-      <div className="max-w-[1200px] p-8 mt-[2rem] lg:mt-[6rem] lg:mb-[5rem]">
-        <BlogSample />
       </div>
       {(config.auth.enabled && config.payments.enabled) && <div>
         <Pricing />

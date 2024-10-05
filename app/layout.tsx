@@ -9,28 +9,28 @@ import './globals.css'
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://usedotcom.com"),
+  metadataBase: new URL("https://socialtargeter.com"),
   title: {
-    default: 'useDotCom - Find Your Perfect .com Domain',
-    template: `%s | useDotCom - AI-Powered Domain Search`
+    default: 'SocialTargeter - AI-Powered Social Media Lead Generation',
+    template: `%s | SocialTargeter - Personalized Lead Engagement`
   },
-  description: 'useDotCom offers AI-powered domain name generation to help you discover the perfect .com for your business. Streamline your domain search with advanced technology.',
+  description: 'SocialTargeter offers AI-powered lead generation and personalized engagement for social media. Streamline your lead generation process with advanced technology.',
   openGraph: {
-    title: 'useDotCom - AI-Powered Domain Search Tool',
-    description: 'Discover your perfect .com domain with useDotCom’s AI-powered suggestions. Quickly search, generate, and secure the ideal domain for your business with unparalleled efficiency.',
-    siteName: 'useDotCom',
-    url: 'https://usedotcom.com/',
+    title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
+    description: 'Discover and engage potential leads on social media with SocialTargeter and its AI-powered suggestions. Quickly find, analyze, and respond to leads for your business with unparalleled efficiency.',
+    siteName: 'SocialTargeter',
+    url: 'https://SocialTargeter.com/',
     images: ['https://i.postimg.cc/Jz2drKXr/Screenshot-2024-10-01-at-16-30-49.png'],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'useDotCom - Find Your Perfect .com Domain',
-    description: 'Harness AI technology to generate and search for available .com domains on useDotCom. Lightning-fast search for domain names to fuel your brand’s success.',
+    title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
+    description: 'Harness AI technology to find and engage with potential leads on social media platforms. Boost your lead generation success with SocialTargeter.',
     creator: '@stevenhhb',  // Update to your actual Twitter handle
     images: ['https://i.postimg.cc/Jz2drKXr/Screenshot-2024-10-01-at-16-30-49.png'],
   },
-  keywords: ['AI domain search', 'domain generator', '.com domain finder', 'available domain names', 'business domains', 'domain name ideas'],
+  keywords: ['AI lead generation', 'social media leads', 'personalized engagement', 'lead finder', 'business leads', 'social media marketing'],
 }
 
 export default function RootLayout({

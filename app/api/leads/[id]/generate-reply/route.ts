@@ -12,13 +12,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     try {
+        const leadId = params.id; // Use the id directly as a string
+
         const lead = await prisma.lead.findUnique({
-            where: { id: parseInt(params.id) },
+            where: { id: leadId },
             include: { product: { include: { user: true } } },
         });
 
-        if (!lead || lead.product.user.user_id !== userId) {
-            return NextResponse.json({ error: 'Lead not found or unauthorized' }, { status: 404 });
+        if (!lead) {
+            return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+        }
+
+        if (lead.product.user.user_id !== userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         // Check remaining reply generations
@@ -57,13 +63,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const generatedReply = response.choices[0].message.content;
 
         const updatedLead = await prisma.lead.update({
-            where: { id: lead.id },
+            where: { id: leadId },
             data: { reply: generatedReply },
+            include: { product: true }, // Add this line to include the product in the result
         });
 
         // Decrement remaining reply generations
         const { error: updateError } = await supabase
-            .from('user')
+            .from('User')
             .update({ remaining_reply_generations: userData.remaining_reply_generations - 1 })
             .eq('user_id', userId);
 

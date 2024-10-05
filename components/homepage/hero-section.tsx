@@ -15,22 +15,22 @@ export default function HeroSection() {
   const [step, setStep] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [generatedDomains, setGeneratedDomains] = useState<string[]>([])
+  const [generatedLeads, setGeneratedLeads] = useState<string[]>([])
   const [error, setError] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   const steps = [
-    "Generating 100+ domain ideas...",
-    "Checking availability...",
-    "Analyzing pricing..."
+    "Analyzing social media profiles...",
+    "Identifying potential leads...",
+    "Generating personalized responses..."
   ]
 
   const handleSearch = () => {
     if (!searchQuery.trim()) {
-      setError('Please enter a project or idea')
+      setError('Please enter your target audience or industry')
       toast({
         title: "Error",
-        description: "Please enter a project or idea before searching.",
+        description: "Please enter your target audience or industry before searching.",
         variant: "destructive",
       })
       searchInputRef.current?.focus()
@@ -39,7 +39,7 @@ export default function HeroSection() {
     setError('')
     setIsSearching(true)
     setStep(0)
-    setGeneratedDomains([])
+    setGeneratedLeads([])
   }
 
   useEffect(() => {
@@ -50,22 +50,22 @@ export default function HeroSection() {
         } else {
           setIsSearching(false)
           setShowResults(true)
-          generateDomains()
+          generateLeads()
         }
       }, 1500)
       return () => clearTimeout(timer)
     }
   }, [isSearching, step])
 
-  const generateDomains = () => {
-    const domains = [
-      `${searchQuery.toLowerCase().replace(/\s+/g, '')}?.com`,
-      `get*${searchQuery.toLowerCase().replace(/\s+/g, '')}.com`,
-      `my${searchQuery.toLowerCase().replace(/\s+/g, '')}?.com`,
-      `the*${searchQuery.toLowerCase().replace(/\s+/g, '')}.com`,
-      `${searchQuery.toLowerCase().replace(/\s+/g, '')}*app.com`,
+  const generateLeads = () => {
+    const leads = [
+      "John Doe - Marketing Manager at TechCorp",
+      "Jane Smith - CEO of InnovateNow",
+      "Mike Johnson - Sales Director at GrowthInc",
+      "Sarah Brown - Entrepreneur and Startup Founder",
+      "Alex Lee - Digital Marketing Specialist"
     ]
-    setGeneratedDomains(domains)
+    setGeneratedLeads(leads)
   }
 
   return (
@@ -76,12 +76,12 @@ export default function HeroSection() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <Badge variant="outline" className="mb-4">AI-Powered Domain Discovery</Badge>
+          <Badge variant="outline" className="mb-4">AI-Powered Lead Generation</Badge>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-6">
-            Find Your Perfect <span className="text-blue-600 dark:text-blue-400">.com</span> Domain in Seconds
+            Find Your Perfect <span className="text-blue-600 dark:text-blue-400">Leads</span> with AI
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Stop wasting hours on taken domains. Our AI generates 100+ tailored options, checks availability, and finds the best prices - all in one go.
+            Stop wasting hours manually searching for leads. Our AI analyzes social media profiles, identifies potential leads, and generates personalized responses - all in one go.
           </p>
         </motion.div>
 
@@ -94,7 +94,7 @@ export default function HeroSection() {
           <div className="relative w-full sm:w-96">
             <Input 
               type="text" 
-              placeholder="Enter your project or idea" 
+              placeholder="Enter your target audience or industry" 
               className={`pl-10 pr-20 ${error ? 'border-red-500' : ''}`}
               value={searchQuery}
               onChange={(e) => {
@@ -110,7 +110,7 @@ export default function HeroSection() {
               disabled={isSearching}
             >
               {isSearching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
-              {isSearching ? 'Searching' : 'Find Domains'}
+              {isSearching ? 'Searching' : 'Find Leads'}
             </Button>
           </div>
         </motion.div>
@@ -161,9 +161,9 @@ export default function HeroSection() {
               className="mb-12"
             >
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg max-w-2xl mx-auto">
-                <h3 className="text-2xl font-bold mb-4">We've found some great domains for you!</h3>
+                <h3 className="text-2xl font-bold mb-4">We've found some great leads for you!</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  {generatedDomains.map((domain, index) => (
+                  {generatedLeads.map((lead, index) => (
                     <motion.div
                       key={index}
                       className="bg-gray-100 dark:bg-gray-700 p-3 rounded-md flex items-center justify-between"
@@ -171,16 +171,16 @@ export default function HeroSection() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <span className="font-medium">{domain}</span>
+                      <span className="font-medium">{lead}</span>
                       <Lock className="text-gray-400" size={16} />
                     </motion.div>
                   ))}
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Unlock your tailored domain suggestions and start building your brand today!
+                  Unlock your tailored lead suggestions and start growing your business today!
                 </p>
                 <Button onClick={() => window.location.href = '/dashboard'} size="lg" className="w-full">
-                  Sign In to view Your Domains <ArrowRight className="ml-2" />
+                  Sign In to View Your Leads <ArrowRight className="ml-2" />
                 </Button>
               </div>
             </motion.div>
@@ -194,9 +194,9 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           {[
-            'Generate 100+ tailored domains',
-            'Instant availability check',
-            'Best pricing analysis'
+            'AI-powered lead identification',
+            'Multi-platform social media analysis',
+            'Personalized engagement suggestions'
           ].map((feature, index) => (
             <div key={index} className="flex items-center justify-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
               <Check className="text-green-500 mr-2 flex-shrink-0" />
@@ -213,22 +213,22 @@ export default function HeroSection() {
         >
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
           <div className="relative p-6 sm:p-8">
-            <h3 className="text-xl font-semibold text-white mb-4">How useDotCom Transforms Your Domain Search</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">How SocialTargeter Transforms Your Lead Generation</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-800 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-white mb-2">Traditional Search</h4>
+                <h4 className="text-lg font-semibold text-white mb-2">Traditional Methods</h4>
                 <ul className="text-gray-400 text-sm space-y-2">
-                  <li>• Hours of manual brainstorming</li>
-                  <li>• Constant "already taken" messages</li>
-                  <li>• Settling for less-than-ideal domains</li>
+                  <li>• Hours of manual social media searching</li>
+                  <li>• Limited reach and platform coverage</li>
+                  <li>• Generic outreach messages</li>
                 </ul>
               </div>
               <div className="bg-gray-800 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-white mb-2">With useDotCom</h4>
+                <h4 className="text-lg font-semibold text-white mb-2">With SocialTargeter</h4>
                 <ul className="text-gray-400 text-sm space-y-2">
-                  <li>• AI generates 100+ tailored options</li>
-                  <li>• Instant availability check</li>
-                  <li>• Price comparison for best deals</li>
+                  <li>• AI analyzes multiple platforms instantly</li>
+                  <li>• Identifies high-quality, relevant leads</li>
+                  <li>• Generates personalized engagement suggestions</li>
                 </ul>
               </div>
             </div>
@@ -239,9 +239,9 @@ export default function HeroSection() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sign In to View Your Domains</DialogTitle>
+            <DialogTitle>Sign In to View Your Leads</DialogTitle>
             <DialogDescription>
-              Create an account to unlock your tailored domain suggestions and start building your brand today!
+              Create an account to unlock your tailored lead suggestions and start growing your business today!
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

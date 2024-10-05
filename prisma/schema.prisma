@@ -9,19 +9,20 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  user_id       String    @unique
-  email         String    @unique
-  name          String?
-  first_name    String?
-  last_name     String?
-  products      Product[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime?  @updatedAt
-  remaining_lead_finds Int @default(1)
-  remaining_reply_generations Int @default(1)
-  profile_image_url String?
-  gender            String?
+  id                        Int       @id @default(autoincrement())
+  user_id                   String    @unique
+  email                     String    @unique
+  name                      String?
+  first_name                String?
+  last_name                 String?
+  gender                    String?
+  profile_image_url         String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime? @updatedAt
+  remaining_lead_finds      Int       @default(0)
+  remaining_reply_generations Int     @default(0)
+  subscription              String?
+  products                  Product[]
 }
 
 model Product {
@@ -38,14 +39,29 @@ model Product {
 }
 
 model Lead {
-  id          Int       @id @default(autoincrement())
-  content     String
-  url         String
-  reply       String?
-  productId   Int
-  product     Product   @relation(fields: [productId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id               String   @id @default(cuid())
+  content          String
+  url              String
+  authorName       String?
+  authorId         String?
+  authorUrl        String?
+  creationDate     DateTime @default(now())
+  subredditName    String?
+  subredditUrl     String?
+  subredditTitle   String?
+  score            Int?
+  nsfw             Boolean  @default(false)
+  contentLanguage  String?
+  upvoteRatio      Float?
+  numComments      Int?
+  contentType      String?
+  postTitle        String?
+  postUrl          String?
+  product          Product  @relation(fields: [productId], references: [id])
+  productId        Int      // Change this line from String to Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  reply            String?
 }
 
 model payments {
@@ -68,9 +84,11 @@ model subscriptions {
   subscription_id           String
   stripe_user_id            String
   status                    String
-  start_date                String
-  end_date                  String?
+  start_date                DateTime
+  end_date                  DateTime?
   plan_id                   String
+  plan_name                 String
+  plan_interval             String
   default_payment_method_id String?
   email                     String
   user_id                   String
