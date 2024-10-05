@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     try {
         const productId = parseInt(params.id);
         const startTime = Date.now();
-        const timeLimit = 10000; // 10 seconds in milliseconds
+        const timeLimit = 5000; // 10 seconds in milliseconds
 
         // Fetch the product and verify ownership
         const product = await prisma.product.findUnique({
