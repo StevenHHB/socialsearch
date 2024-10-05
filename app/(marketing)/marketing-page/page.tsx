@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: 'SocialTargeter',
     description: 'AI-Powered Social Media Lead Generation',
     siteId: "",
-    creator: "@stevenhhb",
+    creator: "@socialtargeter",
     creatorId: "",
     images: [''],
   },
