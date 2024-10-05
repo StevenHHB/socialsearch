@@ -54,78 +54,102 @@ interface Lead {
 }
 
 export default function ProjectPage() {
-  const params = useParams()
-  const router = useRouter()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isSearching, setIsSearching] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [replyGenerating, setReplyGenerating] = useState<string | null>(null)
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
-  const leadsPerPage = 5
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [replyGenerating, setReplyGenerating] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const leadsPerPage = 10;
+  const { id } = useParams();
+  const router = useRouter();
+
+  const [remainingLeadFinds, setRemainingLeadFinds] = useState(0);
+  const [remainingReplyGenerations, setRemainingReplyGenerations] = useState(0);
 
   useEffect(() => {
-    fetchProduct()
-  }, [params.id])
+    fetchProduct();
+    fetchUserLimits();
+  }, [id]);
 
   const fetchProduct = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await fetch(`/api/products/${params.id}`)
-      if (!response.ok) throw new Error('Failed to fetch product')
-      const data = await response.json()
-      setProduct(data.product)
-      setError(null)
+      const response = await fetch(`/api/products/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch product');
+      const data = await response.json();
+      setProduct(data.product);
+      setError(null);
     } catch (err: any) {
-      console.error('Error fetching product:', err)
-      setError('Failed to fetch product')
+      console.error('Error fetching product:', err);
+      setError('Failed to fetch product');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const fetchUserLimits = async () => {
+    try {
+      const response = await fetch('/api/user/limits');
+      const data = await response.json();
+      setRemainingLeadFinds(data.remainingLeadFinds);
+      setRemainingReplyGenerations(data.remainingReplyGenerations);
+    } catch (error) {
+      console.error('Error fetching user limits:', error);
+    }
+  };
 
   const findLeads = async () => {
-    if (!product) return;
+    if (remainingLeadFinds <= 0) {
+      toast.error('No remaining lead finds. Please upgrade your account.');
+      router.push('/dashboard/finance');
+      return;
+    }
+
     setIsSearching(true);
     setError(null);
     try {
-      const response = await fetch(`/api/products/${product.id}/find-leads`, { method: 'POST' });
+      const response = await fetch(`/api/products/${id}/find-leads`, { method: 'POST' });
       if (!response.ok) throw new Error('Failed to find leads');
       const data = await response.json();
-      // Refresh the product data to get the new leads
-      await fetchProduct();
-      setIsSearching(false);
-      // Optionally, you can show a success message with the number of leads found
-      toast.success(`Found ${data.leads} leads in ${data.totalTime / 1000} seconds`);
+      await fetchProduct(); // Refresh product data
+      setRemainingLeadFinds(prev => prev - 1);
     } catch (err: any) {
-      console.error('Error finding leads:', err);
-      setError('Failed to find leads: ' + err.message);
+      setError(err.message);
+    } finally {
       setIsSearching(false);
     }
   };
 
   const generateReply = async (leadId: string) => {
-    if (!product) return
-    setReplyGenerating(leadId)
-    setError(null)
+    if (remainingReplyGenerations <= 0) {
+      toast.error('No remaining reply generations. Please upgrade your account.');
+      router.push('/dashboard/finance');
+      return;
+    }
+
+    if (!product) return;
+    setReplyGenerating(leadId);
+    setError(null);
     try {
-      const response = await fetch(`/api/leads/${leadId}/generate-reply`, { method: 'POST' })
-      if (!response.ok) throw new Error('Failed to generate reply')
-      const data = await response.json()
+      const response = await fetch(`/api/leads/${leadId}/generate-reply`, { method: 'POST' });
+      if (!response.ok) throw new Error('Failed to generate reply');
+      const data = await response.json();
       setProduct((prev) => {
-        if (!prev) return null
+        if (!prev) return null;
         const updatedLeads = prev.leads.map((lead) =>
           lead.id === data.lead.id ? { ...lead, reply: data.lead.reply } : lead
-        )
-        return { ...prev, leads: updatedLeads }
-      })
+        );
+        return { ...prev, leads: updatedLeads };
+      });
+      setRemainingReplyGenerations(prev => prev - 1);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setReplyGenerating(null)
+      setReplyGenerating(null);
     }
-  }
+  };
 
   const copyReply = useCallback((reply: string) => {
     navigator.clipboard.writeText(reply)
@@ -264,23 +288,28 @@ export default function ProjectPage() {
         <Card className="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden mb-8">
           <CardHeader className="bg-muted border-b p-6 flex flex-col sm:flex-row justify-between items-center">
             <CardTitle className="text-2xl font-bold mb-4 sm:mb-0">Lead Analytics</CardTitle>
-            <Button
-              onClick={findLeads}
-              disabled={isSearching}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
-            >
-              {isSearching ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Discover New Leads
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                Remaining Lead Finds: {remainingLeadFinds}
+              </div>
+              <Button
+                onClick={findLeads}
+                disabled={isSearching || remainingLeadFinds <= 0}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+              >
+                {isSearching ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Discover New Leads
+                  </>
+                )}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="p-6">
             {product?.leads.length === 0 ? (
@@ -371,7 +400,7 @@ export default function ProjectPage() {
                                     onClick={() => generateReply(lead.id)}
                                     size="sm"
                                     variant="outline"
-                                    disabled={replyGenerating === lead.id}
+                                    disabled={replyGenerating === lead.id || remainingReplyGenerations <= 0}
                                     className="bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                   >
                                     {replyGenerating === lead.id ? (
