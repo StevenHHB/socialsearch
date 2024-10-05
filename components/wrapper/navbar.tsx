@@ -32,7 +32,6 @@ export default function NavBar() {
                 <div className="hidden md:flex space-x-4">
                     <NavLink href="/">Home</NavLink>
                     <NavLink href="/pricing">Pricing</NavLink>
-                    <NavLink href="/blog">Blog</NavLink>
                 </div>
             </div>
 
@@ -78,7 +77,6 @@ export default function NavBar() {
                         <div className="flex flex-col space-y-4 mt-6">
                             <NavLink href="/" mobile>Home</NavLink>
                             <NavLink href="/pricing" mobile>Pricing</NavLink>
-                            <NavLink href="/blog" mobile>Blog</NavLink>
                             {userId ? (
                                 <Link href="/dashboard">
                                     <Button
