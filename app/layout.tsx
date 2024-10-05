@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   },
   description: 'SocialTargeter offers AI-powered lead generation and personalized engagement for social media. Streamline your lead generation process with advanced technology.',
   openGraph: {
-    title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
-    description: 'Discover and engage potential leads on social media with SocialTargeter and its AI-powered suggestions. Quickly find, analyze, and respond to leads for your business with unparalleled efficiency.',
+    title: 'SocialTargeter - Find Customers on Social Medai in Seconds',
+    description: 'Social Media Lead Generation.Discover and engage potential leads on social media with SocialTargeter and its AI-powered suggestions. Quickly find, analyze, and respond to leads for your business with unparalleled efficiency.',
     siteName: 'SocialTargeter',
     url: 'https://SocialTargeter.com/',
     images: ['https://i.postimg.cc/kXP1FR5n/Screenshot-2024-10-05-at-05-00-57.png'],
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
-    description: 'Harness AI technology to find and engage with potential leads on social media platforms. Boost your lead generation success with SocialTargeter.',
+    title: 'SocialTargeter - Find Customers on Social Medai in Seconds',
+    description: 'Social Media Lead Generation.Harness AI technology to find and engage with potential leads on social media platforms. Boost your lead generation success with SocialTargeter.',
     creator: '@stevenhhb',  // Update to your actual Twitter handle
     images: ['https://i.postimg.cc/kXP1FR5n/Screenshot-2024-10-05-at-05-00-57.png'],
   },
