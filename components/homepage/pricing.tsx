@@ -149,6 +149,10 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
         throw new Error('Failed to load Stripe');
       }
 
+      if (!user) {
+        throw new Error('User is not authenticated');
+      }
+
       const response = await axios.post('/api/payments/create-checkout-session', {
         userId: user.id,
         email: user.emailAddresses[0].emailAddress,
