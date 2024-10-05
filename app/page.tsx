@@ -7,15 +7,15 @@ import SideBySide from "@/components/homepage/side-by-side";
 import PageWrapper from "@/components/wrapper/page-wrapper";
 import config from "@/config";
 import TooltipBanner from "@/components/homepage/tooltip-banner";
-import LandingPage from "@/components/homepage/demo";
+import LandingPage from "@/components/homepage/landingPage";
 export default function Home() {
   return (
     <PageWrapper>
       <TooltipBanner />
       <div className="flex flex-col justify-center items-center w-full mt-[1rem] p-3">
-        <HeroSection />
+        <LandingPage />
       </div>
-      <div className="flex my-[8rem] w-full justify-center items-center">
+      <div className="flex my-[4rem] w-full justify-center items-center">
         <SideBySide />
       </div>
       <div className="flex flex-col p-2 w-full justify-center items-center">

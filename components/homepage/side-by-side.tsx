@@ -73,7 +73,7 @@ export default function SideBySide() {
           >
             <div className="aspect-w-3 aspect-h-2 rounded-lg overflow-hidden">
               <img
-                src="/images/dashboard-preview.jpg"
+                src="/images/dashboard-preview.png"
                 alt="SocialTargeter Dashboard Preview"
                 className="object-cover object-center w-full h-full"
               />
