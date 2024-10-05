@@ -78,10 +78,10 @@ export default function HeroSection() {
         >
           <Badge variant="outline" className="mb-4">AI-Powered Lead Generation</Badge>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-6">
-            Find Your Perfect <span className="text-blue-600 dark:text-blue-400">Leads</span> with AI
+            Find Your <span className="text-blue-600 dark:text-blue-400">Customers</span> In Seconds
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Stop wasting hours manually searching for leads. Our AI analyzes social media profiles, identifies potential leads, and generates personalized responses - all in one go.
+            Our AI-powered bot scans Twitter and Reddit to find customers ready to buy your product or service, saving you time and boosting your sales.
           </p>
         </motion.div>
 
@@ -110,7 +110,7 @@ export default function HeroSection() {
               disabled={isSearching}
             >
               {isSearching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
-              {isSearching ? 'Searching' : 'Find Leads'}
+              {isSearching ? 'Searching' : 'Find Customers'}
             </Button>
           </div>
         </motion.div>
@@ -180,7 +180,7 @@ export default function HeroSection() {
                   Unlock your tailored lead suggestions and start growing your business today!
                 </p>
                 <Button onClick={() => window.location.href = '/dashboard'} size="lg" className="w-full">
-                  Sign In to View Your Leads <ArrowRight className="ml-2" />
+                  Find Customers Now <ArrowRight className="ml-2" />
                 </Button>
               </div>
             </motion.div>
@@ -213,10 +213,10 @@ export default function HeroSection() {
         >
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
           <div className="relative p-6 sm:p-8">
-            <h3 className="text-xl font-semibold text-white mb-4">How SocialTargeter Transforms Your Lead Generation</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">Why Use SocialTargeter?</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-800 p-4 rounded-lg">
-                <h4 className="text-lg font-semibold text-white mb-2">Traditional Methods</h4>
+                <h4 className="text-lg font-semibold text-white mb-2">Manual Customer Finding</h4>
                 <ul className="text-gray-400 text-sm space-y-2">
                   <li>• Hours of manual social media searching</li>
                   <li>• Limited reach and platform coverage</li>

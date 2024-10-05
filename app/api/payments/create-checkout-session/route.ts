@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  console.error('Stripe secret key is not set');
+  throw new Error('Stripe secret key is not set');
+}
+
+console.log('Stripe Secret Key:', process.env.STRIPE_SECRET_KEY);
+
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2023-10-16',
 });
 

@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Zap, Target, Users, Building } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import axios from "axios";
+import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { CheckCircle2, Zap, Target, Users, Building } from "lucide-react";
+import { motion } from "framer-motion";
 
 const plans = [
   {
@@ -94,32 +97,90 @@ const plans = [
 
 interface PricingCardProps {
   hideFreePlan?: boolean;
-  currentPlan?: string;
+  currentPlan?: string | null;
 }
 
-export default function PricingCard({ hideFreePlan = false, currentPlan }: PricingCardProps) {
-  const { user } = useUser();
+export default function PricingCard({ hideFreePlan = false }: PricingCardProps) {
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const [isYearly, setIsYearly] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
+
+  useEffect(() => {
+    const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+    console.log('Stripe Key:', stripeKey);
+    if (stripeKey) {
+      setStripePromise(loadStripe(stripeKey));
+    } else {
+      console.error('Stripe public key is not set');
+    }
+
+    const fetchSubscription = async () => {
+      if (user) {
+        try {
+          const response = await axios.get('/api/subscription');
+          setCurrentPlan(response.data.plan_name);
+        } catch (error) {
+          console.error('Error fetching subscription:', error);
+          // If there's an error or no subscription, set currentPlan to null or 'Free'
+          setCurrentPlan('Free');
+        }
+      }
+    };
+
+    if (isLoaded) {
+      fetchSubscription();
+    }
+  }, [user, isLoaded]);
 
   const filteredPlans = hideFreePlan ? plans.filter(plan => plan.title !== "Free") : plans;
   const gridCols = filteredPlans.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-5';
 
-  const handlePlanSelection = (planTitle: string) => {
-    // Here you would implement the logic to update the user's subscription
-    console.log(`Selected plan: ${planTitle}`);
-    // You might want to redirect to a confirmation page or show a modal
+  const handlePlanSelection = async (plan: typeof plans[0]) => {
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Failed to load Stripe');
+      }
+
+      const response = await axios.post('/api/payments/create-checkout-session', {
+        userId: user.id,
+        email: user.emailAddresses[0].emailAddress,
+        priceId: isYearly ? plan.yearlyPriceId : plan.monthlyPriceId,
+        isYearly: isYearly,
+      });
+
+      const { sessionId } = response.data;
+      const result = await stripe.redirectToCheckout({ sessionId });
+
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
+      console.error('Error during checkout:', error);
+      toast.error(`Error during checkout: ${error.message || 'Unknown error'}`);
+    }
   };
 
-  const getButtonText = (planTitle: string) => {
-    if (!user || !currentPlan) return planTitle === "Free" ? "Start for Free" : `Get ${planTitle}`;
+  const getButtonText = (plan: typeof plans[0]) => {
+    if (!user) return plan.actionLabel;
+    if (!currentPlan) return plan.actionLabel;
     
-    const currentPlanIndex = plans.findIndex(plan => plan.title === currentPlan);
-    const thisPlanIndex = plans.findIndex(plan => plan.title === planTitle);
+    if (plan.title === currentPlan) return "Current Plan";
+    const currentPlanIndex = plans.findIndex(p => p.title === currentPlan);
+    const thisPlanIndex = plans.findIndex(p => p.title === plan.title);
     
-    if (planTitle === currentPlan) return "Current Plan";
-    if (thisPlanIndex < currentPlanIndex) return `Downgrade to ${planTitle}`;
-    return `Upgrade to ${planTitle}`;
+    if (thisPlanIndex < currentPlanIndex) return `Downgrade to ${plan.title}`;
+    return `Upgrade to ${plan.title}`;
+  };
+
+  const handleButtonClick = (plan: typeof plans[0]) => {
+    if (!user) {
+      router.push('/sign-up');
+    } else {
+      handlePlanSelection(plan);
+    }
   };
 
   return (
@@ -189,11 +250,11 @@ export default function PricingCard({ hideFreePlan = false, currentPlan }: Prici
                 </CardContent>
                 <CardFooter>
                   <Button
-                    onClick={() => handlePlanSelection(plan.title)}
+                    onClick={() => handleButtonClick(plan)}
                     className={`mt-8 block w-full ${currentPlan === plan.title ? 'bg-green-500 hover:bg-green-600' : ''}`}
                     disabled={currentPlan === plan.title}
                   >
-                    {getButtonText(plan.title)}
+                    {getButtonText(plan)}
                   </Button>
                 </CardFooter>
               </Card>
