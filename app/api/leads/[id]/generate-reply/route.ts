@@ -46,26 +46,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         }
 
         const prompt = `
-        You are an AI assistant for ${product.name}, a product created by an indie hacker. Your task is to generate a personalized, engaging, and professional reply to a potential lead's inquiry. Use the following information to craft your response:
+        You found this potential social media post/reply that could be a potential lead for ${product.name}. 
+        Social Media Post/Reply of Potential Lead:
+        "${lead.content}"
 
-        Product Information:
+        Your are to respone to under the social media comment section. Here are the information about the product/service:
         - Name: ${product.name}
         - Description: ${product.description}
         ${product.url ? `- URL: ${product.url}` : ''}
 
-        Lead's Inquiry:
-        "${lead.content}"
 
-        Guidelines for the reply:
+        Suggestions:
         1. Address the lead's specific question or concern directly.
-        2. Highlight 1-2 relevant features of ${product.name} that address the lead's needs.
-        3. If applicable, briefly mention a competitive advantage over other products.
-        4. Keep the tone friendly and conversational, but professional.
-        5. Include a clear call-to-action or next step for the lead.
-        6. Keep the reply concise, around 2-4 sentences.
-        7. Use emojis sparingly (0-1) to add a friendly touch if appropriate.
+        2. Find a real and smart way to mention ${product.name} that address the lead's question or concern.
+        3. Keep the reply concise, around 2-4 sentences.
+        4. Use emojis sparingly (0-1) to add a friendly touch if appropriate.
 
-        Generate a reply that will engage the lead and encourage them to learn more about ${product.name}. The reply should feel personal and tailored to the lead's specific inquiry.
+        Reply with only the reply itself. It should not feel like any straight up promption / sales pitch yet also finding a way to either increase brand awareness or drive traffic.
         `;
 
         const openai = new OpenAI({
@@ -73,7 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         });
 
         const response = await openai.chat.completions.create({
-            model: 'gpt-4',
+            model: 'gpt-4o',
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 250,
             temperature: 0.7,

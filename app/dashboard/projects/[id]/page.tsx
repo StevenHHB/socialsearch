@@ -14,6 +14,7 @@ import { format } from 'date-fns'
 import { Dialog, DialogContent, DialogTitle } from '../../../../components/ui/dialog'
 import { AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
+import { highlightKeywords } from '../../../../utils/textUtils'
 
 interface Product {
   id: number
@@ -215,6 +216,18 @@ export default function ProjectPage() {
     </div>
   )
 
+  const renderLeadContent = (lead: Lead, keywords: string) => {
+    const keywordArray = keywords.split(',').map(k => k.trim());
+    const content = lead.content || lead.postTitle || '';
+    const highlightedContent = highlightKeywords(content, keywordArray);
+    
+    return (
+      <div className="max-w-xs">
+        <p dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -341,8 +354,8 @@ export default function ProjectPage() {
                           >
                             <TableCell>{getSourceIcon(lead.url)}</TableCell>
                             <TableCell className="font-medium">{lead.authorName}</TableCell>
-                            <TableCell className="max-w-xs">
-                              <p className="line-clamp-2">{lead.content || lead.postTitle}</p>
+                            <TableCell>
+                              {renderLeadContent(lead, product?.keywords || '')}
                             </TableCell>
                             <TableCell>
                               <TooltipProvider>
