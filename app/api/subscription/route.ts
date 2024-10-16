@@ -43,13 +43,19 @@ export async function GET(request: NextRequest) {
             .single();
 
         if (error) {
+            // Check if the error is due to no subscription found
+            if (error.code === 'PGRST116') {
+                console.log('No subscription found for user:', userId);
+                return NextResponse.json({ 
+                    plan_name: 'Free',
+                    plan_interval: null,
+                    status: 'active',
+                    start_date: null,
+                    end_date: null
+                });
+            }
             console.error('Error fetching subscription:', error);
             return NextResponse.json({ error: 'Failed to fetch subscription', details: error.message }, { status: 500 });
-        }
-
-        if (!subscription) {
-            console.log('No subscription found for user:', userId);
-            return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
         }
 
         console.log('Subscription found:', subscription);

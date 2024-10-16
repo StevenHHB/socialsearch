@@ -31,6 +31,7 @@ export default function NavBar() {
                 {/* Desktop Navigation Links */}
                 <div className="hidden md:flex space-x-4">
                     <NavLink href="/">Home</NavLink>
+                    <NavLink href="/free-tools">Free Tools</NavLink>
                     <NavLink href="/pricing">Pricing</NavLink>
                 </div>
             </div>
@@ -76,6 +77,7 @@ export default function NavBar() {
                         </SheetHeader>
                         <div className="flex flex-col space-y-4 mt-6">
                             <NavLink href="/" mobile>Home</NavLink>
+                            <NavLink href="/free-tools" mobile>Free Tools</NavLink>
                             <NavLink href="/pricing" mobile>Pricing</NavLink>
                             {userId ? (
                                 <Link href="/dashboard">

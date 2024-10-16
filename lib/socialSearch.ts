@@ -26,6 +26,21 @@ interface SearchResult {
     number_of_results: number;        // Number of results returned
 }
 
+// New interface for subreddit search results
+interface SubredditSearchResult {
+    results: {
+        name: string;
+        url: string;
+        id: string;
+        description: string;
+        subscribers: number;
+        nsfw: boolean;
+        icon: string;
+    }[];
+    query: string;
+    number_of_results: number;
+}
+
 // Rate Limiting Variables
 let requestTimestamps: number[] = []; // Stores timestamps of API requests
 
@@ -234,5 +249,52 @@ export async function redditSearchComments(query: string, desiredResults: number
         results: validComments.slice(0, desiredResults),
         query,
         number_of_results: validComments.length,
+    };
+}
+
+// New function to search for subreddits
+export async function redditSearchSubreddits(query: string, desiredResults: number = 25, nsfw: boolean = false): Promise<SubredditSearchResult> {
+    let allResults: any[] = [];
+    let cursor = '';
+    let hasNextPage = true;
+
+    // Loop until we have the desired number of results or no more pages
+    while (allResults.length < desiredResults && hasNextPage) {
+        // Build query parameters
+        const queryParams = new URLSearchParams({
+            query,
+            nsfw: nsfw ? '1' : '0',
+        });
+
+        if (cursor) {
+            queryParams.append('cursor', cursor);
+        }
+
+        // Fetch data from the Reddit API
+        const data = await fetchFromRedditApi('search_subs', queryParams);
+
+        const pageInfo = data.pageInfo;
+        hasNextPage = pageInfo?.hasNextPage || false;
+        cursor = pageInfo?.endCursor || '';
+
+        // Add the data to allResults
+        allResults = allResults.concat(data.data);
+    }
+
+    // Map the API response to the desired format
+    const subreddits = allResults.slice(0, desiredResults).map((item: any) => ({
+        name: item.name || '',
+        url: item.url || '',
+        id: item.id || '',
+        description: item.description || '',
+        subscribers: item.subscribers || 0,
+        nsfw: item.nsfw || false,
+        icon: item.icon || '',
+    }));
+
+    return {
+        results: subreddits,
+        query,
+        number_of_results: subreddits.length,
     };
 }
