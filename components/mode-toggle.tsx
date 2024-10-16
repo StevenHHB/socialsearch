@@ -11,7 +11,13 @@ export default function ModeToggle() {
     const [mounted, setMounted] = useState(false);
 
     // After mounting, we have access to the theme
-    useEffect(() => setMounted(true), []);
+    useEffect(() => {
+        setMounted(true);
+        // Set the theme to light if it's not already set
+        if (!theme) {
+            setTheme("light");
+        }
+    }, [theme, setTheme]);
 
     if (!mounted) {
         // Render nothing on the server and until the theme is mounted

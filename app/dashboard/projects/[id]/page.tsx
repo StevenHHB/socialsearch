@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { RefreshCw, Loader2, Copy, ChevronLeft, ChevronRight, AlertCircle, Twitter, Linkedin, MessageCircle, Globe, ExternalLink, Eye, ArrowUpRight, MessageSquare, Sparkles } from 'lucide-react'
+import { RefreshCw, Loader2, Copy, ChevronLeft, ChevronRight, AlertCircle, Twitter, Linkedin, MessageCircle, Globe, ExternalLink, Eye, ArrowUpRight, MessageSquare, Sparkles, Pencil, Tag } from 'lucide-react'
 import { Button } from '../../../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '../../../../components/ui/alert'
@@ -15,17 +15,26 @@ import { Dialog, DialogContent, DialogTitle } from '../../../../components/ui/di
 import { AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
 import { highlightKeywords } from '../../../../utils/textUtils'
+import { KeywordEditor } from '../../../../components/KeywordEditor'
+import { useToast } from '../../../../components/ui/use-toast'
+import { Progress } from '../../../../components/ui/progress'
+import { differenceInDays } from 'date-fns'
 
 interface Product {
-  id: number
-  name: string
-  description: string
-  keywords: string
-  url: string
-  leads: Lead[]
-  createdAt: string
-  updatedAt: string
-  userId: number
+  id: number;
+  name: string;
+  description: string;
+  keywords: string;
+  url: string;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+  // Remove the leads property from here
+}
+
+// Add a separate interface for the product with leads
+interface ProductWithLeads extends Product {
+  leads: Lead[];
 }
 
 interface Lead {
@@ -52,10 +61,11 @@ interface Lead {
   updatedAt: string
   reply: string | null
   isComment: boolean
+  keyword?: string; // Add this line
 }
 
 export default function ProjectPage() {
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductWithLeads | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -68,11 +78,32 @@ export default function ProjectPage() {
 
   const [remainingLeadFinds, setRemainingLeadFinds] = useState(0);
   const [remainingReplyGenerations, setRemainingReplyGenerations] = useState(0);
+  const [isEditingKeywords, setIsEditingKeywords] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const { toast } = useToast()
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  const requestQueueRef = useRef<Array<() => Promise<void>>>([])
+  const processingRef = useRef(false)
+  const [showRefreshReminder, setShowRefreshReminder] = useState(false);
+
+  const [searchQueue, setSearchQueue] = useState<string[]>([]);
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
   useEffect(() => {
     fetchProduct();
     fetchUserLimits();
   }, [id]);
+
+  useEffect(() => {
+    if (product?.keywords) {
+      const keywords = product.keywords.split(',').map(k => k.trim()).filter(k => k);
+      if (keywords.length > 0) {
+        setSelectedKeyword(keywords[0]);
+      }
+    }
+  }, [product?.keywords]);
 
   const fetchProduct = async () => {
     setIsLoading(true);
@@ -80,7 +111,7 @@ export default function ProjectPage() {
       const response = await fetch(`/api/products/${id}`);
       if (!response.ok) throw new Error('Failed to fetch product');
       const data = await response.json();
-      setProduct(data.product);
+      setProduct(data.product as ProductWithLeads);
       setError(null);
     } catch (err: any) {
       console.error('Error fetching product:', err);
@@ -103,7 +134,7 @@ export default function ProjectPage() {
 
   const findLeads = async () => {
     if (remainingLeadFinds <= 0) {
-      toast.error('No remaining lead finds. Please upgrade your account.');
+      toast({ description: 'No remaining lead finds. Please upgrade your account.' });
       router.push('/dashboard/finance');
       return;
     }
@@ -125,7 +156,7 @@ export default function ProjectPage() {
 
   const generateReply = async (leadId: string) => {
     if (remainingReplyGenerations <= 0) {
-      toast.error('No remaining reply generations. Please upgrade your account.');
+      toast({ description: 'No remaining reply generations. Please upgrade your account.' });
       router.push('/dashboard/finance');
       return;
     }
@@ -164,7 +195,7 @@ export default function ProjectPage() {
   }
 
   // Sort leads by date, newest to oldest
-  const sortedLeads = product?.leads.sort((a, b) => 
+  const sortedLeads = product?.leads?.sort((a, b) => 
     new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
   ) || []
 
@@ -228,6 +259,135 @@ export default function ProjectPage() {
     );
   };
 
+  const handleSaveKeywords = async (keywords: string[]) => {
+    if (keywords.length > 5) {
+      setError('You can only save up to 5 keywords.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${id}/keywords`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keywords }),
+      });
+      if (!response.ok) throw new Error('Failed to update keywords');
+      const data = await response.json();
+      setProduct(prevProduct => {
+        if (!prevProduct) return null;
+        return { ...prevProduct, ...data.product };
+      });
+      setIsEditingKeywords(false);
+      setError(null); // Clear any previous errors
+
+      if (response.ok) {
+        setShowRefreshReminder(true);
+        setTimeout(() => setShowRefreshReminder(false), 10000); // Hide reminder after 10 seconds
+      }
+    } catch (error: any) {
+      console.error('Error updating keywords:', error);
+      setError('Failed to update keywords');
+    }
+  };
+
+  const processSearchQueue = useCallback(async () => {
+    if (isProcessingQueue || searchQueue.length === 0) return;
+
+    setIsProcessingQueue(true);
+    const keyword = searchQueue[0];
+
+    try {
+      const response = await fetch(`/api/products/${id}/find-leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'getNewestLeads', keyword }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to find leads');
+      }
+
+      const data = await response.json();
+      
+      // Update product leads
+      setProduct(prevProduct => {
+        if (!prevProduct) return null;
+        const newLeads = [...data.leads, ...prevProduct.leads]
+          .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime());
+        return { ...prevProduct, leads: newLeads };
+      });
+
+      setProgress(prev => prev + (100 / searchQueue.length));
+    } catch (error) {
+      console.error('Error fetching leads for keyword:', keyword, error);
+      toast({
+        title: "Error finding leads",
+        description: `Failed to fetch leads for keyword: ${keyword}. Skipping to next keyword.`,
+        variant: "destructive",
+      });
+    } finally {
+      setSearchQueue(prev => prev.slice(1));
+      setIsProcessingQueue(false);
+    }
+  }, [id, searchQueue, setProgress, toast]);
+
+  useEffect(() => {
+    processSearchQueue();
+  }, [processSearchQueue, searchQueue]);
+
+  const getNewestLeads = useCallback(async () => {
+    if (remainingLeadFinds <= 0) {
+      toast({
+        title: "No remaining lead finds",
+        description: "Please upgrade your account to find more leads.",
+        variant: "destructive",
+      });
+      router.push('/dashboard/finance');
+      return;
+    }
+
+    setIsRefreshing(true);
+    setProgress(0);
+    setError(null);
+
+    const keywords = product?.keywords.split(',').map(k => k.trim()).filter(k => k) || [];
+    setSearchQueue(keywords);
+
+    // Wait for all requests to complete
+    while (searchQueue.length > 0 || isProcessingQueue) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    setRemainingLeadFinds(prev => prev - 1);
+    setIsRefreshing(false);
+    toast({
+      title: "New leads found",
+      description: `Finished searching for new leads.`,
+    });
+  }, [product, remainingLeadFinds, router, toast, setSearchQueue]);
+
+  useEffect(() => {
+    if (product?.leads && product.leads.length > 0) {
+      const newestLeadDate = new Date(product.leads[0].creationDate);
+      const daysSinceNewestLead = differenceInDays(new Date(), newestLeadDate);
+      
+      if (daysSinceNewestLead >= 1) {
+        toast({
+          title: "New leads may be available",
+          description: "It's been a while since you last refreshed. Click 'Get Newest Leads' to check for updates.",
+          duration: 10000,
+        });
+      }
+    }
+  }, [product?.leads]);
+
+  const filteredLeads = useMemo(() => {
+    if (!selectedKeyword) return [];
+    return (product?.leads || []).filter(lead => 
+      (lead.content || lead.postTitle || '').toLowerCase().includes(selectedKeyword.toLowerCase())
+    );
+  }, [product?.leads, selectedKeyword]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -281,13 +441,65 @@ export default function ProjectPage() {
               <p className="text-muted-foreground">{product?.description}</p>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Keywords</h3>
-              <p className="text-muted-foreground">{product?.keywords}</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <Tag className="mr-2 h-5 w-5 text-primary" />
+                  <h2 className="text-2xl font-bold">Keywords</h2>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => setIsEditingKeywords(true)}
+                        size="sm"
+                        variant="outline"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Keywords
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit project keywords</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              {isEditingKeywords ? (
+                <KeywordEditor
+                  keywords={product?.keywords.split(',').map(k => k.trim()) || []}
+                  onSave={handleSaveKeywords}
+                  onCancel={() => setIsEditingKeywords(false)}
+                />
+              ) : (
+                <motion.div 
+                  className="flex flex-wrap gap-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ staggerChildren: 0.1 }}
+                >
+                  {product?.keywords.split(',').map((keyword, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <Badge 
+                        variant="secondary" 
+                        className="text-sm py-1 px-3 bg-primary/10 text-primary hover:bg-primary/20 transition-colors duration-200"
+                      >
+                        {keyword.trim()}
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
             </div>
             <ProjectUrl />
             <div>
               <h3 className="font-semibold mb-2">Total Leads</h3>
-              <p className="text-3xl font-bold text-primary">{product?.leads.length || 0}</p>
+              <p className="text-3xl font-bold text-primary">{product?.leads?.length || 0}</p>
             </div>
           </CardContent>
         </Card>
@@ -300,36 +512,73 @@ export default function ProjectPage() {
       >
         <Card className="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden mb-8">
           <CardHeader className="bg-muted border-b p-6 flex flex-col sm:flex-row justify-between items-center">
-            <CardTitle className="text-2xl font-bold mb-4 sm:mb-0">Lead Analytics</CardTitle>
+            <CardTitle className="text-2xl font-bold mb-4 sm:mb-0">Social Media Leads</CardTitle>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="text-sm text-muted-foreground">
                 Remaining Leads: {remainingLeadFinds * 50}
               </div>
-              <Button
-                onClick={findLeads}
-                disabled={isSearching || remainingLeadFinds <= 0}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
-              >
-                {isSearching ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Discover New Leads
-                  </>
+              <div className="relative">
+                <Button
+                  onClick={getNewestLeads}
+                  disabled={isRefreshing || remainingLeadFinds <= 0}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto flex items-center"
+                >
+                  {isRefreshing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Refreshing...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-5 w-5" />
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Get Newest Leads
+                    </>
+                  )}
+                </Button>
+                {isRefreshing && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute left-0 right-0 mt-2"
+                  >
+                    <Progress value={progress} className="w-full" />
+                    <p className="text-sm text-center mt-1">Fetching new leads...</p>
+                  </motion.div>
                 )}
-              </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            {product?.leads.length === 0 ? (
+            {product?.leads?.length === 0 ? (
               <EmptyState isSearching={isSearching} onFindLeads={findLeads} />
             ) : (
               <>
-                {(product?.leads?.length ?? 0) > leadsPerPage && <PaginationControls />}
+                {showRefreshReminder && (
+                  <Alert className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Keywords Updated</AlertTitle>
+                    <AlertDescription>
+                      Your keywords have been updated. Click "Get Newest Leads" to refresh and get leads for your new keywords.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div className="mb-4">
+                  <label htmlFor="keyword-filter" className="block text-sm font-medium text-gray-700">Filter by Keyword:</label>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {product?.keywords.split(',').map((keyword, index) => (
+                      <Button
+                        key={index}
+                        onClick={() => setSelectedKeyword(keyword.trim())}
+                        variant={selectedKeyword === keyword.trim() ? "default" : "outline"}
+                        size="sm"
+                      >
+                        {keyword.trim()}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                {filteredLeads.length > leadsPerPage && <PaginationControls />}
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -343,7 +592,7 @@ export default function ProjectPage() {
                   </TableHeader>
                   <TableBody>
                     <AnimatePresence>
-                      {currentLeads.map((lead) => (
+                      {filteredLeads.map((lead) => (
                         <React.Fragment key={lead.id}>
                           <motion.tr
                             initial={{ opacity: 0 }}
@@ -353,9 +602,12 @@ export default function ProjectPage() {
                             className="border-b border-muted"
                           >
                             <TableCell>{getSourceIcon(lead.url)}</TableCell>
-                            <TableCell className="font-medium">{lead.authorName}</TableCell>
+                            <TableCell>{lead.authorName}</TableCell>
                             <TableCell>
-                              {renderLeadContent(lead, product?.keywords || '')}
+                              {selectedKeyword 
+                                ? <div dangerouslySetInnerHTML={{ __html: highlightKeywords(lead.content || lead.postTitle || '', [selectedKeyword]) }} />
+                                : lead.content || lead.postTitle
+                              }
                             </TableCell>
                             <TableCell>
                               <TooltipProvider>
@@ -451,7 +703,7 @@ export default function ProjectPage() {
                     </AnimatePresence>
                   </TableBody>
                 </Table>
-                {(product?.leads?.length ?? 0) > leadsPerPage && <PaginationControls />}
+                {filteredLeads.length > leadsPerPage && <PaginationControls />}
               </>
             )}
           </CardContent>
