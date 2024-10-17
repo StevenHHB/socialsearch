@@ -60,11 +60,11 @@ export function FindYourSub() {
 
       const data = await response.json()
       setResults(data.results)
-    } catch (error) {
-      console.error('Error searching subreddits:', error)
+    } catch (error: any) {
+      console.error('Error searching subreddits:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
         variant: "destructive",
       })
     } finally {
