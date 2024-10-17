@@ -332,7 +332,7 @@ export default function DashboardPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[650px]"> {/* Increased width */}
+        <DialogContent className="sm:max-w-[700px]">
           <DialogTitle className="text-2xl font-bold mb-4">Create New Project</DialogTitle>
           <form onSubmit={handleCreateProduct}>
             <div className="grid gap-6 py-4">
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                   placeholder="Provide key features and benefits of your product or service that would appeal to potential leads."
                 />
               </div>
-              <div className="grid grid-cols-4 items-start gap-4"> {/* Changed to items-start */}
+              <div className="grid grid-cols-4 items-start gap-4">
                 <Label htmlFor="keywords" className="text-right text-lg mt-2">Keywords</Label>
                 <div className="col-span-3">
                   <div className="flex flex-wrap gap-2 mb-2">
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                       value={currentKeyword}
                       onChange={(e) => setCurrentKeyword(e.target.value)}
                       placeholder="Type a keyword and click 'Add' (up to 5)"
-                      className="flex-grow h-16 text-lg" // Increased height
+                      className="flex-grow h-16 text-lg"
                     />
                     <Button 
                       type="button" 
@@ -390,6 +390,26 @@ export default function DashboardPage() {
                   </div>
                   <p className="text-sm text-gray-600 mt-2">Add keywords one by one. Don't use commas.</p>
                   {keywordError && <p className="text-red-500 text-sm mt-1">{keywordError}</p>}
+                  
+                  {/* New Keyword Guidance Section */}
+                  <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                    <h4 className="text-lg font-semibold text-blue-700 mb-2">Keyword Tips</h4>
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <li>Use specific product features or benefits</li>
+                      <li>Include your target audience or industry</li>
+                      <li>Try "[Competitor] + alternative" (e.g., "Airtable alternative")</li>
+                      <li>Add problem-specific phrases (e.g., "streamline project management")</li>
+                      <li>Incorporate current trends or pain points in your industry</li>
+                    </ul>
+                    <div className="mt-3">
+                      <strong className="text-blue-700">Examples:</strong>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <Badge variant="outline" className="bg-white">project management software</Badge>
+                        <Badge variant="outline" className="bg-white">remote team collaboration</Badge>
+                        <Badge variant="outline" className="bg-white">agile workflow tool</Badge>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -414,7 +434,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={isLoading} className="w-full h-16 text-lg"> {/* Increased height */}
+              <Button type="submit" disabled={isLoading} className="w-full h-16 text-lg">
                 {isLoading ? 'Creating...' : 'Create Project'}
               </Button>
             </DialogFooter>
