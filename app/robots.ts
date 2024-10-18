@@ -8,5 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: '/dashboard/',
     },
     sitemap: 'https://socialtargeter.com/sitemap.xml',
+    host: 'https://socialtargeter.com',
   }
 }
