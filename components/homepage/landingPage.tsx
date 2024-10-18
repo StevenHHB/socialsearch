@@ -51,19 +51,20 @@ export default function LandingPage() {
             
             <div className="flex flex-col items-start mb-6">
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-2">
-                Find Your Customers <br />
+                Find Customers in<br />
                 <span className="relative inline-flex items-center flex-wrap">
                   <span className="relative z-10">
-                    In Seconds
+                    Seconds
                     <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" xmlns="http://www.w3.org/2000/svg">
                       <path d="M1 5.5Q50 1 100 5.5T199 5.5" stroke="#ff6f2c" strokeWidth="2" fill="none" />
                     </svg>
                   </span>
                   <span className="flex items-center space-x-2 mt-2 md:mt-0 md:ml-4">
-                    <RedditIcon size={8} />
-                    <FaXTwitter className="w-8 h-8 text-black" />
-                    <FaLinkedin className="w-8 h-8 text-[#0077b5]" />
-                    <span className="text-sm md:text-base text-gray-500 italic">...and more coming soon</span>
+                  <span className="text-sm md:text-base text-gray-500 italic">from</span>
+                    <RedditIcon size={10} />
+                    <FaXTwitter className="w-10 h-10 text-black" />
+                    <FaLinkedin className="w-10 h-10 text-[#0077b5]" />
+                    <span className="text-sm md:text-base text-gray-500 italic">and more soon !</span>
                   </span>
                 </span>
               </h1>
