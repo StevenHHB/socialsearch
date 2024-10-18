@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from "@supabase/ssr";
+import { updateSitemap, updateRSSFeed, generateMetadata } from '@/utils/seoUtils';
 
 export async function GET(request: NextRequest) {
     const supabase = createServerClient(
@@ -99,6 +100,13 @@ export async function POST(request: NextRequest) {
             }
             throw error;
         }
+
+        // Update SEO-related elements
+        await Promise.all([
+            updateSitemap(newPost),
+            updateRSSFeed(newPost),
+            generateMetadata(newPost),
+        ]);
 
         return NextResponse.json(newPost, { status: 201 });
     } catch (error: any) {
