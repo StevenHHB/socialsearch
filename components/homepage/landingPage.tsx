@@ -41,7 +41,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className=" w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
              {/* Hero Section */}
              <section className="container mx-auto px-4 py-8 md:py-16">
           <div className="max-w-4xl mx-auto">

@@ -1,14 +1,11 @@
 import { AccordionComponent } from "@/components/homepage/accordion-component";
-import BlogSample from "@/components/homepage/blog-samples";
-import MarketingCards from "@/components/homepage/marketing-cards";
 import Pricing from "@/components/homepage/pricing";
-import SideBySide from "@/components/homepage/side-by-side";
 import PageWrapper from "@/components/wrapper/page-wrapper";
 import config from "@/config";
-import TooltipBanner from "@/components/homepage/tooltip-banner";
 import LandingPage from "@/components/homepage/landingPage";
-import CTASection from "@/components/homepage/cta-section";
 import { Metadata } from "next";
+import BlogSection from "@/components/homepage/BlogSection";
+
 export const metadata: Metadata = {
   title: 'SocialTargeter - AI-Powered Social Media Lead Generation',
   description: 'Discover and engage potential leads on social media with SocialTargeter. Our AI-powered platform streamlines your lead generation process.',
@@ -30,6 +27,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
 };
+
 export default function Home() {
   return (
     <PageWrapper>
@@ -42,6 +40,7 @@ export default function Home() {
       <div className="flex justify-center items-center w-full my-[3rem]">
         <AccordionComponent />
       </div>
+      <BlogSection />
     </PageWrapper>
   );
 }

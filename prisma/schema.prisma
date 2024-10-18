@@ -127,5 +127,5 @@ model BlogPost {
   image     String?
   author    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime? @updatedAt
 }

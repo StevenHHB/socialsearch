@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://socialtargeter.com
+
+# Sitemaps
+Sitemap: https://socialtargeter.com/sitemap.xml
+Sitemap: https://socialtargeter.com/server-sitemap.xml
