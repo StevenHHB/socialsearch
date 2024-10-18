@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<SitemapEntry[]> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/blog`,
+      url: `${baseUrl}/blogs`,
       lastModified: new Date().toISOString(),
       changeFrequency: "daily",
       priority: 0.8,

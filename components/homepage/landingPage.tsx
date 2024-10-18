@@ -43,33 +43,33 @@ export default function LandingPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
              {/* Hero Section */}
-             <section className="container mx-auto px-4 py-8">
+             <section className="container mx-auto px-4 py-8 md:py-16">
           <div className="max-w-4xl mx-auto">
             <Badge variant="secondary" className="mb-4 px-3 py-1 text-sm font-semibold bg-[#fff0e5] text-[#ff6f2c] border-none">
               Social Media AI Lead Generation Done Right
             </Badge>
             
             <div className="flex flex-col items-start mb-6">
-              <h1 className="text-6xl font-bold tracking-tight text-gray-900 mb-2">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-2">
                 Find Your Customers <br />
-                <span className="relative inline-flex items-center">
+                <span className="relative inline-flex items-center flex-wrap">
                   <span className="relative z-10">
                     In Seconds
                     <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" xmlns="http://www.w3.org/2000/svg">
                       <path d="M1 5.5Q50 1 100 5.5T199 5.5" stroke="#ff6f2c" strokeWidth="2" fill="none" />
                     </svg>
                   </span>
-                  <span className="flex items-center space-x-2 ml-4">
-                    <RedditIcon size={10} />
-                    <FaXTwitter className="w-10 h-10 text-black" />
-                    <FaLinkedin className="w-10 h-10 text-[#0077b5]" />
-                    <span className="text-base text-gray-500 italic">...and more coming soon</span>
+                  <span className="flex items-center space-x-2 mt-2 md:mt-0 md:ml-4">
+                    <RedditIcon size={8} />
+                    <FaXTwitter className="w-8 h-8 text-black" />
+                    <FaLinkedin className="w-8 h-8 text-[#0077b5]" />
+                    <span className="text-sm md:text-base text-gray-500 italic">...and more coming soon</span>
                   </span>
                 </span>
               </h1>
             </div>
 
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-lg md:text-xl text-gray-600 mb-8">
               SocialTargeter finds high impact Reddit conversations to help you
               naturally promote your product and get more sales. Leverage the power of
               Reddit's SEO dominance and AI-driven search discovery.

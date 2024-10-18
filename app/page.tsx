@@ -33,7 +33,6 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <PageWrapper>
-      <TooltipBanner />
       <div className="flex flex-col justify-center items-center w-full">
         <LandingPage />
       </div>

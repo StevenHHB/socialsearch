@@ -35,6 +35,7 @@ export default function NavBar() {
                     <NavLink href="/#why-socialtargeter">Why SocialTargeter</NavLink>
                     <NavLink href="/pricing">Pricing</NavLink>
                     <NavLink href="/free-tools">Free Tools</NavLink>
+                    <NavLink href="/blogs">Blogs</NavLink>
                 </div>
             </div>
 
@@ -76,9 +77,12 @@ export default function NavBar() {
                             <SheetTitle>Menu</SheetTitle>
                         </SheetHeader>
                         <div className="flex flex-col space-y-4 mt-6">
-                            <NavLink href="/" mobile>Home</NavLink>
+                            <NavLink href="/#how-it-works" mobile>How it works</NavLink>
+                            <NavLink href="/#features" mobile>Features</NavLink>
+                            <NavLink href="/#why-socialtargeter" mobile>Why SocialTargeter</NavLink>
                             <NavLink href="/free-tools" mobile>Free Tools</NavLink>
                             <NavLink href="/pricing" mobile>Pricing</NavLink>
+                            <NavLink href="/blogs" mobile>Blogs</NavLink>
                             {userId ? (
                                 <Link href="/dashboard">
                                     <Button

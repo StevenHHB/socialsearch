@@ -117,3 +117,15 @@ model invoices {
   email           String
   user_id         String?
 }
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  excerpt   String
+  image     String?
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

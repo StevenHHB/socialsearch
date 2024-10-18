@@ -1,68 +1,108 @@
-// app/api/projects/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import axios from 'axios';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: NextRequest) {
+    const supabase = createServerClient(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_KEY!,
+        { cookies: {} }
+    );
+
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id'); // Changed from slug to id
+    const id = searchParams.get('id');
+    const slug = searchParams.get('slug');
 
-    if (id) {
-        // Fetch a single blog post by id
-        const { data: post, error } = await supabase
-            .from('BlogPost')
-            .select('*')
-            .eq('id', id) // Updated to match on id
-            .single();
+    console.log('API Route - Received request with:', { id, slug });
 
-        if (error) {
-            throw new Error(error.message);
+    try {
+        if (slug) {
+            console.log('Fetching blog post with slug:', slug);
+            const { data: post, error } = await supabase
+                .from('BlogPost')
+                .select('*')
+                .eq('slug', slug)
+                .single();
+            
+            console.log('Supabase response:', { post, error });
+
+            if (error) {
+                console.error('Supabase error:', error);
+                return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+            }
+
+            if (!post) {
+                console.log('No post found for slug:', slug);
+                return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+            }
+
+            return NextResponse.json(post);
+        } else if (id) {
+            // Fetch a single blog post by id
+            const { data: post, error } = await supabase
+                .from('BlogPost')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
+            }
+
+            return NextResponse.json(post);
+        } else {
+            // Fetch all blog posts ordered by createdAt, excluding full content
+            const { data: blogPosts, error } = await supabase
+                .from('BlogPost')
+                .select('id, title, slug, excerpt, image, author, createdAt')
+                .order('createdAt', { ascending: false });
+
+            if (error) {
+                throw error;
+            }
+
+            return NextResponse.json(blogPosts);
         }
-        return NextResponse.json(post);
-    } else {
-        // Fetch all blog posts ordered by createdAt
-        const { data: blogPosts, error } = await supabase
-            .from('BlogPost')
-            .select('*')
-            .order('createdAt', { ascending: false });
-
-        if (error) {
-            throw new Error(error.message);
-        }
-
-        return NextResponse.json(blogPosts);
+    } catch (error) {
+        console.error('Error fetching blog post(s):', error);
+        return NextResponse.json({ error: 'Failed to fetch blog post(s)' }, { status: 500 });
     }
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        // Check for empty request body
-        const body = await request.json();
-        if (!body) {
-            return NextResponse.json({ error: 'Empty request body' }, { status: 400 });
-        }
+    const supabase = createServerClient(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_KEY!,
+        { cookies: {} }
+    );
 
-        const { title, slug, content, image } = body;
+    try {
+        const body = await request.json();
+        const { title, slug, content, excerpt, image, author } = body;
 
         // Validate input data
-        if (!title || !slug || !content) {
-            return NextResponse.json({ error: 'Invalid input data' }, { status: 400 });
+        if (!title || !slug || !content || !excerpt || !author) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Create a new blog post in Supabase
+        // Create a new blog post
         const { data: newPost, error } = await supabase
             .from('BlogPost')
-            .insert([{ title, slug, content, image }]);
+            .insert([
+                { title, slug, content, excerpt, image, author }
+            ])
+            .select()
+            .single();
 
         if (error) {
-            throw new Error(error.message);
+            if (error.code === '23505') { // Unique constraint violation
+                return NextResponse.json({ error: 'Slug must be unique' }, { status: 400 });
+            }
+            throw error;
         }
 
-        return NextResponse.json({ post: newPost }, { status: 201 });
+        return NextResponse.json(newPost, { status: 201 });
     } catch (error: any) {
         console.error('Error creating blog post:', error);
-        return NextResponse.json({ error: 'Failed to create blog post', details: error.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
     }
 }

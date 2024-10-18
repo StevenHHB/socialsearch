@@ -10,7 +10,7 @@ const footerLinks = {
   resources: [
     { name: 'Pricing', href: '/pricing' },
     { name: 'Free Tools', href: '/free-tools' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Blogs', href: '/blogs' },
   ],
   legal: [
     { name: 'Privacy Policy', href: '/' },
@@ -48,7 +48,7 @@ export function Footer() {
         </div>
         <div className="mt-8 border-t border-gray-200 pt-8 text-center">
           <p className="text-base text-gray-400">
-            © 2024 Social Targeter. All rights reserved.
+            © {new Date().getFullYear()} Social Targeter. All rights reserved.
           </p>
         </div>
       </div>
