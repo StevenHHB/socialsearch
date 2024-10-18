@@ -193,16 +193,18 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
   };
 
   return (
-    <div className="py-24 sm:py-32 bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <div className="py-4 sm:py-6 bg-gradient-to-b from-[#fffaf5] to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-base font-semibold leading-7 text-blue-600 dark:text-blue-400">Pricing</h2>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-            Supercharge Your Lead Generation
-          </p>
+          <Badge variant="secondary" className="px-3 py-1 text-sm font-semibold bg-[#fff0e5] text-[#ff6f2c] border-none mb-4">
+            Pricing
+          </Badge>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+            Choose the Perfect Plan for Your Business
+          </h2>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-gray-300">
-          Choose the perfect plan to skyrocket your outreach and convert more leads with AI-powered precision.
+          Supercharge your lead generation with AI-powered precision and convert more leads effortlessly.
         </p>
         
         <div className="mt-8 flex justify-center items-center space-x-4">
@@ -215,7 +217,7 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
           <span className="text-sm font-medium text-gray-900 dark:text-white">Yearly (Save 40%)</span>
         </div>
 
-        <div className={`isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none md:grid-cols-2 ${gridCols}`}>
+        <div className={`isolate mx-auto mt-12 grid max-w-md grid-cols-1 gap-6 lg:mx-0 lg:max-w-none md:grid-cols-2 ${gridCols}`}>
           {filteredPlans.map((plan, planIdx) => (
             <motion.div
               key={plan.title}
@@ -224,17 +226,17 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
               transition={{ duration: 0.5, delay: planIdx * 0.1 }}
               className="flex"
             >
-              <Card className={`relative flex flex-col justify-between h-full ring-1 ring-gray-200 dark:ring-gray-700 ${plan.popular ? 'ring-2 ring-blue-600 dark:ring-blue-400' : ''} ${currentPlan === plan.title ? 'bg-blue-50 dark:bg-blue-900' : ''}`}>
+              <Card className={`relative flex flex-col justify-between h-full border border-gray-200 dark:border-gray-700 ${plan.popular ? 'border-[#ff6f2c] dark:border-[#ff6f2c]' : ''} ${currentPlan === plan.title ? 'bg-[#fff0e5] dark:bg-[#2a2522]' : ''}`}>
                 {plan.popular && (
                   <div className="absolute top-0 right-0 -mr-1 -mt-1 z-10">
-                    <Badge variant="secondary" className="bg-blue-600 text-white dark:bg-blue-400 dark:text-gray-900">
+                    <Badge variant="secondary" className="bg-[#ff6f2c] text-white">
                       Most Popular
                     </Badge>
                   </div>
                 )}
                 <CardHeader>
                   <div className="flex items-center gap-x-4">
-                    <plan.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                    <plan.icon className="h-6 w-6 text-[#ff6f2c]" aria-hidden="true" />
                     <CardTitle className="text-lg font-semibold leading-8 text-gray-900 dark:text-white">{plan.title}</CardTitle>
                   </div>
                   <CardDescription className="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-300">{plan.description}</CardDescription>
@@ -247,7 +249,7 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
                     </span>
                   </p>
                   {plan.highlight && (
-                    <p className="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400">{plan.highlight}</p>
+                    <p className="mt-2 text-sm font-medium text-[#ff6f2c]">{plan.highlight}</p>
                   )}
                 </CardHeader>
                 <CardContent>
@@ -263,7 +265,7 @@ export default function PricingCard({ hideFreePlan = false }: PricingCardProps) 
                 <CardFooter>
                   <Button
                     onClick={() => handleButtonClick(plan)}
-                    className={`mt-8 block w-full ${currentPlan === plan.title ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                    className={`mt-8 block w-full ${currentPlan === plan.title ? 'bg-green-500 hover:bg-green-600' : 'bg-[#ff6f2c] hover:bg-[#e5632a]'}`}
                     disabled={currentPlan === plan.title}
                   >
                     {getButtonText(plan)}

@@ -1,95 +1,57 @@
 "use client"
-import { useForm } from 'react-hook-form';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import Link from 'next/link'
 
-export default function Footer() {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset,
-    } = useForm();
+const footerLinks = {
+  about: [
+    { name: 'How it works', href: '/#how-it-works' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Why SocialTargeter', href: '/#why-socialtargeter' },
+  ],
+  resources: [
+    { name: 'Pricing', href: '/pricing' },
+    { name: 'Free Tools', href: '/free-tools' },
+    { name: 'Blog', href: '/blog' },
+  ],
+  legal: [
+    { name: 'Privacy Policy', href: '/' },
+    { name: 'Terms of Service', href: '/' },
+    { name: 'Cookie Policy', href: '/' },
+  ],
+  connect: [
+    { name: 'Twitter', href: 'https://twitter.com/socialtargeter' },
+    { name: 'LinkedIn', href: 'https://linkedin.com/company/socialtargeter' },
+    { name: 'Facebook', href: 'https://facebook.com/socialtargeter' },
+  ],
+}
 
-
-    const onSubmit = async (data: any) => {
-
-
-    };
-    return (
-        <footer className="border-t dark:bg-black">
-            <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
-                <div className="lg:grid lg:grid-cols-2">
-                    <div
-                        className="border-b   py-8 lg:order-last lg:border-b-0 lg:border-s lg:py-16 lg:ps-16"
-                    >
-                        <div className="mt-8 space-y-4 lg:mt-0">
-
-                            <div>
-                                <h3 className="text-2xl font-medium">Subscribe to Offers & Newsletters</h3>
-                                <p className="mt-4 max-w-lg  ">
-                                Subscribe for exclusive tips on social media lead generation and engagement strategies.
-                                </p>
-                            </div>
-                            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col border rounded-xl p-4 gap-3 mt-6 w-full">
-                                <Input
-                                    {...register('email', { required: true })}
-                                    placeholder="Enter your email"
-                                    type="email"
-                                />
-                                <Button type="button" onClick={() => window.location.href = '/sign-up'}>
-                                    Sign Up
-                                </Button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div className="py-8 lg:py-16 lg:pe-16">
-
-
-                        <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
-
-                            <div>
-                                <p className="font-medium ">Follow For Updates</p>
-
-                                <ul className="mt-6 space-y-4 text-sm">
-                                    <li>
-                                        <a href="https://twitter.com/stevenhhb" target="_blank" className="transition hover:opacity-75"> Twitter </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <p className="font-medium ">Helpful Links</p>
-
-                                <ul className="mt-6 space-y-4 text-sm">
-                                <li>
-                                        <a href="/pricing" className="  transition hover:opacity-75"> Pricing </a>
-                                    </li>
-                                    <li>
-                                        <a target="_blank" href="/" rel="noopener noreferrer" className="  transition hover:opacity-75"> Docs </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div className="mt-8 border-t   pt-8">
-                            <ul className="flex flex-wrap gap-4 text-xs">
-                                <li>
-                                    <a href="/" target="_blank" className="transition hover:opacity-75">Terms & Conditions </a>
-                                </li>
-
-                                <li>
-                                    <a href="/" target="_blank" className="transition hover:opacity-75">Privacy Policy </a>
-                                </li>
-                            </ul>
-
-                            <p className="mt-8 text-xs  ">&copy; 2024. SocialTargeter. All rights reserved.</p>
-                        </div>
-                    </div>
-                </div>
+export function Footer() {
+  return (
+    <footer className="bg-gray-100 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {Object.entries(footerLinks).map(([category, links]) => (
+            <div key={category}>
+              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </h3>
+              <ul className="space-y-2">
+                {links.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="text-base text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-        </footer>
-
-    )
+          ))}
+        </div>
+        <div className="mt-8 border-t border-gray-200 pt-8 text-center">
+          <p className="text-base text-gray-400">
+            © 2024 Social Targeter. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
 }

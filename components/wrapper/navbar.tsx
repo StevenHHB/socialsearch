@@ -30,9 +30,11 @@ export default function NavBar() {
 
                 {/* Desktop Navigation Links */}
                 <div className="hidden md:flex space-x-4">
-                    <NavLink href="/">Home</NavLink>
-                    <NavLink href="/free-tools">Free Tools</NavLink>
+                    <NavLink href="/#how-it-works">How it works</NavLink>
+                    <NavLink href="/#features">Features</NavLink>
+                    <NavLink href="/#why-socialtargeter">Why SocialTargeter</NavLink>
                     <NavLink href="/pricing">Pricing</NavLink>
+                    <NavLink href="/free-tools">Free Tools</NavLink>
                 </div>
             </div>
 
@@ -49,8 +51,6 @@ export default function NavBar() {
                         </Button>
                     </Link>
                 </div>
-
-                <ModeToggle />
 
                 <div className="hidden md:block">
                     {userId && <UserProfile />}
