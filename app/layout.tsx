@@ -7,6 +7,7 @@ import { GeistSans } from 'geist/font/sans'
 import type { Metadata } from 'next'
 import './globals.css'
 import { TooltipProvider } from "@/components/ui/tooltip"
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://socialtargeter.com"),
@@ -69,6 +70,7 @@ export default function RootLayout({
             </TooltipProvider>
           </Provider>
           <Analytics />
+          <GoogleAnalytics GA_MEASUREMENT_ID="G-K7S0X5WG07" />
         </body>
       </html>
     </AuthWrapper>
