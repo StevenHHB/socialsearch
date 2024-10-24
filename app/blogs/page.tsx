@@ -36,6 +36,8 @@ async function getBlogPosts() {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function BlogsPage() {
   let blogPosts = []
   let error = null
