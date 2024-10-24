@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'SocialTargeter - Find Customers on Social Medai in Seconds',
-    description: 'Social Media Lead Generation.Harness AI technology to find and engage with potential leads on social media platforms. Boost your lead generation success with SocialTargeter.',
-    creator: '@socialtargeter',  // Update to your actual Twitter handle
-    images: ['https://socialtargeter.com/images/og.png'],
+    description: 'Social Media Lead Generation. Find and engage with potential leads on social media platforms in seconds. Boost your lead generation success with SocialTargeter.',
+    creator: '@Social_Targeter',  // Update to your actual Twitter handle
+    images: ['https://ibb.co/k9vj67sg'],
   },
   keywords: ['AI lead generation', 'social media leads', 'personalized engagement', 'lead finder', 'business leads', 'social media marketing'],
 }
