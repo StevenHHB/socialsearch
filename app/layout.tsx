@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { TooltipProvider } from "@/components/ui/tooltip"
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://socialtargeter.com"),
@@ -53,6 +54,13 @@ export default function RootLayout({
             href="https://www.socialtargeter.com/images/og.png"
             as="image"
           />
+          
+          {/* Reddit Pixel */}
+          <Script id="reddit-pixel" strategy="beforeInteractive">
+            {`
+            !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','a2_fvt0tf00tays');rdt('track', 'PageVisit');
+            `}
+          </Script>
         </head>
         
         <body className={GeistSans.className}>
