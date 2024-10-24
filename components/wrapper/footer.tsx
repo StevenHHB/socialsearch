@@ -13,9 +13,9 @@ const footerLinks = {
     { name: 'Blogs', href: '/blogs' },
   ],
   legal: [
-    { name: 'Privacy Policy', href: '/' },
-    { name: 'Terms of Service', href: '/' },
-    { name: 'Cookie Policy', href: '/' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Cookie Policy', href: '/privacy' },
   ],
   connect: [
     { name: 'Twitter', href: 'https://twitter.com/socialtargeter' },
