@@ -13,7 +13,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     try {
         const productId = parseInt(params.id);
-        const { action, keyword } = await request.json();
+        const { action, keyword, isLastKeyword } = await request.json();
 
         if (action !== 'getNewestLeads' || !keyword) {
             return NextResponse.json({ error: 'Invalid action or missing keyword' }, { status: 400 });
@@ -44,15 +44,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             return NextResponse.json({ error: 'No remaining lead finds' }, { status: 403 });
         }
 
-        // Fetch leads for the keyword
         const [postResults, commentResults] = await Promise.all([
-            redditSearchPosts(keyword, 10), // Adjusted to ensure API responds quickly
-            redditSearchComments(keyword, 10)
+            redditSearchPosts(keyword, 25),
+            redditSearchComments(keyword, 25)
         ]);
 
         const leads = postResults.results.concat(commentResults.results)
             .sort((a, b) => new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime())
-            .slice(0, 20)
+            .slice(0, 50)
             .map(result => ({
                 content: result.content,
                 url: result.url,
@@ -82,9 +81,29 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             });
         }
 
-        // Do not decrement remaining_lead_finds here
+        let updatedRemainingLeadFinds = userData.remaining_lead_finds;
 
-        return NextResponse.json({ leads: leads }, { status: 200 });
+        // Decrement the remaining_lead_finds count if this is the last keyword
+        if (isLastKeyword) {
+            const { data: updatedUser, error: updateError } = await supabase
+                .from('User')
+                .update({ remaining_lead_finds: userData.remaining_lead_finds - 1 })
+                .eq('user_id', userId)
+                .select()
+                .single();
+
+            if (updateError) {
+                console.error('Error updating user data:', updateError);
+                return NextResponse.json({ error: 'Failed to update user data' }, { status: 500 });
+            }
+
+            updatedRemainingLeadFinds = updatedUser.remaining_lead_finds;
+        }
+
+        return NextResponse.json({ 
+            leads: leads, 
+            remainingLeadFinds: updatedRemainingLeadFinds 
+        }, { status: 200 });
 
     } catch (error: any) {
         console.error('Error finding leads:', error);
