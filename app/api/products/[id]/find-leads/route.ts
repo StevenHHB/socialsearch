@@ -1,5 +1,3 @@
-// routes/api/findLeads.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -46,14 +44,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             return NextResponse.json({ error: 'No remaining lead finds' }, { status: 403 });
         }
 
+        // Fetch leads for the keyword
         const [postResults, commentResults] = await Promise.all([
-            redditSearchPosts(keyword, 25),
-            redditSearchComments(keyword, 25)
+            redditSearchPosts(keyword, 10), // Adjusted to ensure API responds quickly
+            redditSearchComments(keyword, 10)
         ]);
 
         const leads = postResults.results.concat(commentResults.results)
             .sort((a, b) => new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime())
-            .slice(0, 50)
+            .slice(0, 20)
             .map(result => ({
                 content: result.content,
                 url: result.url,
@@ -83,15 +82,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             });
         }
 
-        // Decrement remaining lead finds
-        const { error: updateError } = await supabase
-            .from('User')
-            .update({ remaining_lead_finds: userData.remaining_lead_finds - 1 })
-            .eq('user_id', userId);
-
-        if (updateError) {
-            console.error('Error updating remaining lead finds:', updateError);
-        }
+        // Do not decrement remaining_lead_finds here
 
         return NextResponse.json({ leads: leads }, { status: 200 });
 
