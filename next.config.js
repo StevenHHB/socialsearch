@@ -10,6 +10,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.fenews.co.uk',
+        port: '',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
         hostname: 'seo-heist.s3.amazonaws.com',
         port: '',
         pathname: '/**'
@@ -33,14 +39,7 @@ const nextConfig = {
         pathname: '/**'
       }
     ],
-  }
-};
-
-const withSvgr = require('next-svgr');
-
-module.exports = withSvgr(nextConfig);
-
-module.exports = {
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -49,3 +48,7 @@ module.exports = {
     return config;
   }
 };
+
+const withSvgr = require('next-svgr');
+
+module.exports = withSvgr(nextConfig);

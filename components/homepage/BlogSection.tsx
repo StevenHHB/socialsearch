@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
 import { Button } from "../../components/ui/button"
+import Image from 'next/image'
 
 const blogPosts = [
   {
@@ -64,7 +65,7 @@ const BlogSection = () => {
               <Link href={`/blogs/${post.slug}`}>
                 <Card className="flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="p-0">
-                    <img src={post.image} alt={post.title} className="w-full h-48 object-cover rounded-t-lg" />
+                    <Image src={post.image} alt={post.title} width={400} height={200} className="w-full h-48 object-cover rounded-t-lg" />
                   </CardHeader>
                   <CardContent className="flex-grow p-6">
                     <CardTitle className="text-2xl font-bold mb-2">{post.title}</CardTitle>
@@ -85,7 +86,7 @@ const BlogSection = () => {
         </div>
         <div className="flex justify-center mt-12">
           <Link href="/blogs">
-            <Button size="lg" className="bg-[#ff6f2c] text-white hover:bg-[#ff6f2c]/90">
+            <Button size="lg" className="bg-[#ff6f2c] text-white hover:bg-[#ff6f2c]/90 w-full sm:w-auto">
               View All Blog Posts
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>

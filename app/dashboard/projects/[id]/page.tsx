@@ -409,19 +409,19 @@ export default function ProjectPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <motion.div 
-        className="flex items-center justify-between mb-8"
+        className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Button
           onClick={() => router.push('/dashboard')}
-          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors duration-200"
+          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors duration-200 w-full sm:w-auto"
         >
           <ChevronLeft className="mr-2" size={18} />
           Back to Projects
         </Button>
-        <h1 className="text-4xl font-extrabold text-primary">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-primary text-center sm:text-left">
           {product?.name} project
         </h1>
       </motion.div>
@@ -512,16 +512,16 @@ export default function ProjectPage() {
       >
         <Card className="bg-card text-card-foreground shadow-lg rounded-lg overflow-hidden mb-8">
           <CardHeader className="bg-muted border-b p-6 flex flex-col sm:flex-row justify-between items-center">
-            <CardTitle className="text-2xl font-bold mb-4 sm:mb-0">Social Media Leads</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">Social Media Leads</CardTitle>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="text-sm text-muted-foreground">
                 Remaining Leads: {remainingLeadFinds * 50}
               </div>
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Button
                   onClick={getNewestLeads}
                   disabled={isRefreshing || remainingLeadFinds <= 0}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto flex items-center"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto flex items-center justify-center"
                 >
                   {isRefreshing ? (
                     <>
@@ -549,7 +549,7 @@ export default function ProjectPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-6 overflow-x-auto">
             {product?.leads?.length === 0 ? (
               <EmptyState isSearching={isSearching} onFindLeads={findLeads} />
             ) : (
@@ -563,15 +563,16 @@ export default function ProjectPage() {
                     </AlertDescription>
                   </Alert>
                 )}
-                <div className="mb-4">
-                  <label htmlFor="keyword-filter" className="block text-sm font-medium text-gray-700">Filter by Keyword:</label>
-                  <div className="mt-1 flex flex-wrap gap-2">
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <label htmlFor="keyword-filter" className="w-full text-sm font-medium text-gray-700 mb-2">Filter by Keyword:</label>
+                  <div className="flex flex-wrap gap-2">
                     {product?.keywords.split(',').map((keyword, index) => (
                       <Button
                         key={index}
                         onClick={() => setSelectedKeyword(keyword.trim())}
                         variant={selectedKeyword === keyword.trim() ? "default" : "outline"}
                         size="sm"
+                        className="mb-2"
                       >
                         {keyword.trim()}
                       </Button>
@@ -579,130 +580,132 @@ export default function ProjectPage() {
                   </div>
                 </div>
                 {filteredLeads.length > leadsPerPage && <PaginationControls />}
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-1/12">Source</TableHead>
-                      <TableHead className="w-2/12">Author</TableHead>
-                      <TableHead className="w-5/12">Content</TableHead>
-                      <TableHead className="w-1/12">Engagement</TableHead>
-                      <TableHead className="w-2/12">Date</TableHead>
-                      <TableHead className="w-1/12">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <AnimatePresence>
-                      {filteredLeads.map((lead) => (
-                        <React.Fragment key={lead.id}>
-                          <motion.tr
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="border-b border-muted"
-                          >
-                            <TableCell>{getSourceIcon(lead.url)}</TableCell>
-                            <TableCell>{lead.authorName}</TableCell>
-                            <TableCell>
-                              {selectedKeyword 
-                                ? <div dangerouslySetInnerHTML={{ __html: highlightKeywords(lead.content || lead.postTitle || '', [selectedKeyword]) }} />
-                                : lead.content || lead.postTitle
-                              }
-                            </TableCell>
-                            <TableCell>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Badge variant="outline">{lead.score || 0}</Badge>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{lead.isComment ? 'Comment score' : 'Post score'}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell>{format(new Date(lead.creationDate), 'MMM d, yyyy')}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-col space-y-2">
-                                <Button
-                                  onClick={() => showLeadDetails(lead)}
-                                  size="sm"
-                                  variant="ghost"
-                                  className="text-primary hover:text-primary-dark transition-colors"
-                                >
-                                  <Eye className="h-4 w-4 mr-1" />
-                                  View Details
-                                </Button>
-                                <Button
-                                  onClick={() => window.open(lead.url, '_blank')}
-                                  size="sm"
-                                  variant="ghost"
-                                  className="text-primary hover:text-primary-dark transition-colors"
-                                >
-                                  <ExternalLink className="h-4 w-4 mr-1" />
-                                  Open lead
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </motion.tr>
-                          <motion.tr
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                            className="bg-muted/50"
-                          >
-                            <TableCell colSpan={6}>
-                              <div className="flex flex-col space-y-2">
-                                {lead.reply && (
-                                  <div className="bg-white p-2 rounded-md">
-                                    <strong>Generated Reply:</strong>
-                                    <p>{lead.reply}</p>
-                                  </div>
-                                )}
-                                <div className="flex justify-end space-x-2">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/12">Source</TableHead>
+                        <TableHead className="w-2/12">Author</TableHead>
+                        <TableHead className="w-5/12">Content</TableHead>
+                        <TableHead className="w-1/12">Engagement</TableHead>
+                        <TableHead className="w-2/12">Date</TableHead>
+                        <TableHead className="w-1/12">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <AnimatePresence>
+                        {filteredLeads.map((lead) => (
+                          <React.Fragment key={lead.id}>
+                            <motion.tr
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="border-b border-muted"
+                            >
+                              <TableCell>{getSourceIcon(lead.url)}</TableCell>
+                              <TableCell>{lead.authorName}</TableCell>
+                              <TableCell>
+                                {selectedKeyword 
+                                  ? <div dangerouslySetInnerHTML={{ __html: highlightKeywords(lead.content || lead.postTitle || '', [selectedKeyword]) }} />
+                                  : lead.content || lead.postTitle
+                                }
+                              </TableCell>
+                              <TableCell>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Badge variant="outline">{lead.score || 0}</Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{lead.isComment ? 'Comment score' : 'Post score'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell>{format(new Date(lead.creationDate), 'MMM d, yyyy')}</TableCell>
+                              <TableCell>
+                                <div className="flex flex-col space-y-2">
                                   <Button
-                                    onClick={() => generateReply(lead.id)}
+                                    onClick={() => showLeadDetails(lead)}
                                     size="sm"
-                                    variant="outline"
-                                    disabled={replyGenerating === lead.id || remainingReplyGenerations <= 0}
-                                    className="bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                    variant="ghost"
+                                    className="text-primary hover:text-primary-dark transition-colors"
                                   >
-                                    {replyGenerating === lead.id ? (
-                                      <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Generating...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <MessageCircle className="mr-2 h-4 w-4" />
-                                        {lead.reply ? 'Regenerate Reply' : 'Generate Reply'}
-                                      </>
-                                    )}
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View Details
                                   </Button>
+                                  <Button
+                                    onClick={() => window.open(lead.url, '_blank')}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-primary hover:text-primary-dark transition-colors"
+                                  >
+                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                    Open lead
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </motion.tr>
+                            <motion.tr
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.3, delay: 0.1 }}
+                              className="bg-muted/50"
+                            >
+                              <TableCell colSpan={6}>
+                                <div className="flex flex-col space-y-2">
                                   {lead.reply && (
+                                    <div className="bg-white p-2 rounded-md">
+                                      <strong>Generated Reply:</strong>
+                                      <p>{lead.reply}</p>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-end space-x-2">
                                     <Button
-                                      onClick={() => {
-                                        copyReply(lead.reply!)
-                                        window.open(lead.url, '_blank')
-                                      }}
+                                      onClick={() => generateReply(lead.id)}
                                       size="sm"
                                       variant="outline"
-                                      className="bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                      disabled={replyGenerating === lead.id || remainingReplyGenerations <= 0}
+                                      className="bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                     >
-                                      <ArrowUpRight className="mr-2 h-4 w-4" />
-                                      Post Reply
+                                      {replyGenerating === lead.id ? (
+                                        <>
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          Generating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <MessageCircle className="mr-2 h-4 w-4" />
+                                          {lead.reply ? 'Regenerate Reply' : 'Generate Reply'}
+                                        </>
+                                      )}
                                     </Button>
-                                  )}
+                                    {lead.reply && (
+                                      <Button
+                                        onClick={() => {
+                                          copyReply(lead.reply!)
+                                          window.open(lead.url, '_blank')
+                                        }}
+                                        size="sm"
+                                        variant="outline"
+                                        className="bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                      >
+                                        <ArrowUpRight className="mr-2 h-4 w-4" />
+                                        Post Reply
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                          </motion.tr>
-                        </React.Fragment>
-                      ))}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
+                              </TableCell>
+                            </motion.tr>
+                          </React.Fragment>
+                        ))}
+                      </AnimatePresence>
+                    </TableBody>
+                  </Table>
+                </div>
                 {filteredLeads.length > leadsPerPage && <PaginationControls />}
               </>
             )}

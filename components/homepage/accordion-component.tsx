@@ -15,7 +15,7 @@ export function AccordionComponent() {
             <h2 className="text-3xl font-bold text-center tracking-tight dark:text-white text-gray-900 mb-8">
                 Frequently Asked Questions
             </h2>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full space-y-4">
                 <AccordionItem value="item-1">
                     <AccordionTrigger><span className="font-medium">How does SocialTargeter leverage AI for lead generation?</span></AccordionTrigger>
                     <AccordionContent>

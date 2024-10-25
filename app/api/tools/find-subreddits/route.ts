@@ -11,10 +11,6 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 export async function POST(request: NextRequest) {
     const { userId } = getAuth(request);
 
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     // Check rate limit
     const now = Date.now();
     if (now - lastResetTime > RATE_LIMIT_WINDOW) {

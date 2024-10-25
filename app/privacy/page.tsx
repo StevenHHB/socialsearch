@@ -6,7 +6,7 @@ export default function PrivacyPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
         <div className="prose max-w-none">
-          <p>Last updated: [2024.10.24]</p>
+          <p>Last updated: [2024.10.25]</p>
           
           <h2>1. Introduction</h2>
           <p>SocialTargeter ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services (collectively, the "Service"). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Service.</p>

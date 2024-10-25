@@ -27,12 +27,12 @@ interface DashboardSideBarProps {
 }
 
 export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGenerations }: DashboardSideBarProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
 
   const sidebarVariants = {
     expanded: { width: '240px' },
-    collapsed: { width: '80px' }
+    collapsed: { width: '60px' }
   };
 
   const linkVariants = {
@@ -40,12 +40,12 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
     collapsed: { opacity: 0, x: -20 }
   };
 
-  const remainingLeads = remainingLeadFinds * 50; // Calculate remaining leads
+  const remainingLeads = remainingLeadFinds * 50;
 
   return (
     <motion.div
       className="h-full border-r bg-white dark:bg-gray-900 overflow-hidden flex flex-col"
-      initial="expanded"
+      initial="collapsed"
       animate={isExpanded ? "expanded" : "collapsed"}
       variants={sidebarVariants}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -112,8 +112,6 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
           </nav>
 
           <Separator className="my-4" />
-
-          {/* Removed the duplicated remaining searches and replies here */}
         </div>
       </div>
 

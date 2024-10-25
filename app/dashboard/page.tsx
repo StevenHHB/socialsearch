@@ -158,7 +158,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <div className="container mx-auto px-4 py-8">
         <motion.h1
-          className="text-5xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-700"
+          className="text-3xl sm:text-5xl font-extrabold mb-8 sm:mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-700"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -177,12 +177,12 @@ export default function DashboardPage() {
               className="pl-10 w-full bg-white border-gray-300 text-gray-700 shadow-sm"
             />
           </div>
-          <div className="flex gap-2">
-            <Button onClick={fetchProducts} variant="outline" size="sm" className="border-gray-300 text-gray-600 hover:bg-gray-200">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button onClick={fetchProducts} variant="outline" size="sm" className="border-gray-300 text-gray-600 hover:bg-gray-200 flex-grow sm:flex-grow-0">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Button onClick={() => setIsDialogOpen(true)} size="sm" className="bg-blue-500 hover:bg-blue-600">
+            <Button onClick={() => setIsDialogOpen(true)} size="sm" className="bg-blue-500 hover:bg-blue-600 flex-grow sm:flex-grow-0">
               <Plus className="mr-2 h-4 w-4" />
               New Project
             </Button>
@@ -190,10 +190,10 @@ export default function DashboardPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="mb-8">
-          <TabsList className="bg-white border-gray-300">
-            <TabsTrigger value="all" className="text-gray-600 data-[state=active]:bg-blue-500">All Projects</TabsTrigger>
-            <TabsTrigger value="active" className="text-gray-600 data-[state=active]:bg-blue-500">Active</TabsTrigger>
-            <TabsTrigger value="inactive" className="text-gray-600 data-[state=active]:bg-blue-500">Inactive</TabsTrigger>
+          <TabsList className="bg-white border-gray-300 w-full sm:w-auto">
+            <TabsTrigger value="all" className="text-gray-600 data-[state=active]:bg-blue-500 flex-grow sm:flex-grow-0">All Projects</TabsTrigger>
+            <TabsTrigger value="active" className="text-gray-600 data-[state=active]:bg-blue-500 flex-grow sm:flex-grow-0">Active</TabsTrigger>
+            <TabsTrigger value="inactive" className="text-gray-600 data-[state=active]:bg-blue-500 flex-grow sm:flex-grow-0">Inactive</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -470,3 +470,4 @@ export default function DashboardPage() {
 // 3. Enhanced spacing, card borders, and shadow effects for a more elegant look.
 // 4. Included additional product information such as total leads and last lead generated date.
 // 5. Improved visual cues for creating new projects and adding leads.
+
