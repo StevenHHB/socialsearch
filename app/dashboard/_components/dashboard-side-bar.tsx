@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
@@ -26,9 +26,23 @@ interface DashboardSideBarProps {
   remainingReplyGenerations: number;
 }
 
-export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGenerations }: DashboardSideBarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export default function DashboardSideBar({ 
+  remainingLeadFinds, 
+  remainingReplyGenerations
+}: DashboardSideBarProps) {
   const pathname = usePathname();
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsExpanded(window.innerWidth >= 1024);
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const sidebarVariants = {
     expanded: { width: '240px' },
@@ -42,10 +56,12 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
 
   const remainingLeads = remainingLeadFinds * 50;
 
+  const toggleExpanded = () => setIsExpanded(!isExpanded);
+
   return (
     <motion.div
       className="h-full border-r bg-white dark:bg-gray-900 overflow-hidden flex flex-col"
-      initial="collapsed"
+      initial={false}
       animate={isExpanded ? "expanded" : "collapsed"}
       variants={sidebarVariants}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -70,7 +86,7 @@ export default function DashboardSideBar({ remainingLeadFinds, remainingReplyGen
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={toggleExpanded}
             className="ml-auto"
           >
             {isExpanded ? <ChevronLeft /> : <ChevronRight />}

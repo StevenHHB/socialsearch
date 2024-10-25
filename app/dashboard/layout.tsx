@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import NotAuthorized from "@/components/not-authorized"
 import { isAuthorized } from "@/utils/data/user/isAuthorized"
 import { currentUser } from "@clerk/nextjs/server"
@@ -40,12 +41,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="w-64 flex-shrink-0">
-        <DashboardSideBar 
-          remainingLeadFinds={remainingLeadFinds} 
-          remainingReplyGenerations={remainingReplyGenerations} 
-        />
-      </div>
+      <DashboardSideBar 
+        remainingLeadFinds={remainingLeadFinds} 
+        remainingReplyGenerations={remainingReplyGenerations} 
+      />
       <div className="flex-1 overflow-auto">
         <DashboardTopNav>
           <main className="flex flex-col gap-4 p-4 lg:gap-6">
@@ -57,6 +56,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </main>
         </DashboardTopNav>
       </div>
+      <Analytics />
     </div>
   )
 }

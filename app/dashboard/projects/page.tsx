@@ -233,33 +233,30 @@ export default function ProductsPage() {
                 transition={{ duration: 0.5 }}
                 className="text-center"
               >
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Your Project Hub!</h2>
-                <p className="text-gray-600 mb-6">Let's kickstart your journey to finding amazing leads.</p>
+                <Zap className="w-16 h-16 text-blue-500 mb-6" />
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">Supercharge Your Lead Generation</h2>
+                <p className="text-xl text-gray-600 mb-8">Create your first project and start finding high-quality leads in minutes!</p>
                 <ol className="text-left text-gray-700 mb-8 space-y-4">
                   <li className="flex items-start">
-                    <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1">1</span>
-                    <span>Click on "New Project" to create your first project.</span>
+                    <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 flex-shrink-0">1</span>
+                    <span>Click "New Project" to set up your campaign</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1">2</span>
-                    <span>Give your project a name and brief description.</span>
+                    <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 flex-shrink-0">2</span>
+                    <span>Add keywords and a brief description of your ideal customer</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1">3</span>
-                    <span>Add some keywords related to your product or service.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1">4</span>
-                    <span>Sit back and let our AI find the best leads for you!</span>
+                    <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 flex-shrink-0">3</span>
+                    <span>Let our AI find and engage with perfect leads for you</span>
                   </li>
                 </ol>
                 <Button 
                   onClick={() => setIsDialogOpen(true)} 
                   size="lg" 
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full transition-colors duration-300 transform hover:scale-105"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
-                  <Plus className="mr-2 h-5 w-5" />
                   Create Your First Project
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </motion.div>
             </CardContent>
@@ -329,8 +326,20 @@ export default function ProductsPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="text-sm text-gray-600 italic">
-                        Click to start generating leads for this project!
+                      <div className="text-center p-6 bg-blue-50 rounded-lg">
+                        <Zap className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-blue-700 mb-2">Ready to Discover Leads?</h3>
+                        <p className="text-sm text-gray-600 mb-4">Your AI-powered lead finder is ready to go. Start now and watch your opportunities grow!</p>
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/dashboard/projects/${product.id}`);
+                          }} 
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-full transition-all duration-300 hover:shadow-md"
+                        >
+                          Find Leads Now
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
                       </div>
                     )}
                   </div>
