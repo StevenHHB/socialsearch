@@ -1,10 +1,13 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /api/*
+Allow: /api/sitemap/*
+Allow: /api/rss
 
 # Host
-Host: https://socialtargeter.com
+Host: https://www.socialtargeter.com
 
 # Sitemaps
-Sitemap: https://socialtargeter.com/sitemap.xml
-Sitemap: https://socialtargeter.com/server-sitemap.xml
+Sitemap: https://www.socialtargeter.com/api/sitemap/index

@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from "@supabase/ssr";
-import { updateSitemap, updateRSSFeed, generateMetadata } from '@/utils/seoUtils';
+import { updateSitemap, updateRSSFeed, generateMetadata, generateBlogJsonLd } from '@/utils/seoUtils';
+import { revalidatePath } from 'next/cache';
+
+// Add API key validation middleware
+const validateApiKey = (request: NextRequest) => {
+  const apiKey = request.headers.get('x-api-key');
+  const validApiKey = process.env.BLOG_API_KEY;
+  
+  if (!apiKey || apiKey !== validApiKey) {
+    return false;
+  }
+  return true;
+};
 
 export async function GET(request: NextRequest) {
     const supabase = createServerClient(
@@ -70,6 +82,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    // Add API key validation
+    if (!validateApiKey(request)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = createServerClient(
         process.env.SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_KEY!,
@@ -101,11 +118,26 @@ export async function POST(request: NextRequest) {
             throw error;
         }
 
-        // Update SEO-related elements
         await Promise.all([
             updateSitemap(newPost),
             updateRSSFeed(newPost),
             generateMetadata(newPost),
+        ]);
+
+        // Update SEO-related content
+        await Promise.all([
+            revalidatePath('/api/sitemap'),
+            revalidatePath('/api/sitemap/blog'),
+            revalidatePath('/api/sitemap/index'),
+            revalidatePath('/api/rss'),
+            revalidatePath('/blogs'),
+            revalidatePath(`/blogs/${slug}`),
+        ]);
+
+        // Notify search engines
+        await Promise.all([
+            fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
+            fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
         ]);
 
         return NextResponse.json(newPost, { status: 201 });

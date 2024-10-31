@@ -10,19 +10,13 @@ import PageWrapper from "../../../components/wrapper/page-wrapper";
 import 'tailwindcss/tailwind.css'; // Make sure this import is present
 import 'github-markdown-css/github-markdown-light.css'; // Add this import
 import { marked } from 'marked'; // Update this import
+import { generateBlogJsonLd } from '@/utils/seoUtils';
+import { generateBlogMetadata } from '@/utils/seoUtils';
 
 // This is necessary for dynamic metadata
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const post = await getBlogPost(params.slug)
-  return {
-    title: `${post.title} | SocialTargeter Blog`,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      images: [{ url: post.image || '/images/default-blog-image.jpg' }],
-    },
-  }
+  return generateBlogMetadata(post);
 }
 
 async function getBlogPost(slug: string) {
@@ -47,9 +41,14 @@ async function getBlogPost(slug: string) {
 export default async function BlogPost({ params }: { params: { slug: string } }) {
   const post = await getBlogPost(params.slug)
   const htmlContent = marked.parse(post.content) // Update this line
+  const jsonLd = generateBlogJsonLd(post);
 
   return (
     <PageWrapper>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Link href="/blogs" className="inline-flex items-center text-[#ff6f2c] hover:underline mb-8">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -73,12 +72,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
         {post.image && (
           <div className="mb-8">
-            <img
+            <Image
               src={post.image}
               alt={post.title}
               width={1200}
               height={630}
+              priority={true}
               className="rounded-lg shadow-lg"
+              itemProp="image"
             />
           </div>
         )}

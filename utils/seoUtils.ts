@@ -1,34 +1,75 @@
+import { parseStringPromise, Builder } from 'xml2js'
 import fs from 'fs/promises';
 import path from 'path';
+import { revalidatePath } from 'next/cache';
+import { BlogPostMetadata } from '@/utils/types';
+import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
-export async function updateSitemap(newPost: any) {
-  const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-  let sitemap = await fs.readFile(sitemapPath, 'utf-8');
+export async function updateSitemap(newPost: BlogPostMetadata) {
+  try {
+    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+    const sitemapContent = await fs.readFile(sitemapPath, 'utf-8');
+    
+    // Parse existing sitemap
+    const parsed = await parseStringPromise(sitemapContent);
+    
+    // Add new URL
+    if (!parsed.urlset) {
+      parsed.urlset = { url: [] };
+    }
 
-  const newUrl = `
-    <url>
-      <loc>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${newPost.slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.8</priority>
-    </url>
-  </sitemap>`;
+    parsed.urlset.url.push({
+      loc: [`${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${escapeXml(newPost.slug)}`],
+      lastmod: [formatXmlDate(newPost.createdAt)],
+      changefreq: ['weekly'],
+      priority: ['0.7'],
+      'news:news': [{
+        'news:publication': [{
+          'news:name': ['SocialTargeter Blog'],
+          'news:language': ['en']
+        }],
+        'news:publication_date': [formatXmlDate(newPost.createdAt)],
+        'news:title': [escapeXml(newPost.title)]
+      }]
+    });
 
-  sitemap = sitemap.replace('</sitemap>', newUrl);
-  await fs.writeFile(sitemapPath, sitemap);
+    // Convert back to XML
+    const builder = new Builder();
+    const xml = builder.buildObject(parsed);
+    
+    await fs.writeFile(sitemapPath, xml);
+    
+    // Revalidate paths
+    await Promise.all([
+      revalidatePath('/api/sitemap'),
+      revalidatePath('/api/sitemap/blog'),
+      revalidatePath('/api/sitemap/index'),
+      revalidatePath('/blogs')
+    ]);
+
+    // Ping search engines
+    await Promise.all([
+      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
+    ]);
+  } catch (error) {
+    console.error('Error updating sitemap:', error);
+    throw error;
+  }
 }
 
-export async function updateRSSFeed(newPost: any) {
+export async function updateRSSFeed(newPost: BlogPostMetadata) {
   const rssFeedPath = path.join(process.cwd(), 'public', 'rss.xml');
   let rssFeed = await fs.readFile(rssFeedPath, 'utf-8');
 
   const newItem = `
     <item>
-      <title>${newPost.title}</title>
-      <link>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${newPost.slug}</link>
-      <description>${newPost.excerpt}</description>
+      <title>${escapeXml(newPost.title)}</title>
+      <link>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${escapeXml(newPost.slug)}</link>
+      <description>${wrapCdata(newPost.excerpt)}</description>
       <pubDate>${new Date(newPost.createdAt).toUTCString()}</pubDate>
-      <guid>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${newPost.slug}</guid>
+      <guid>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${escapeXml(newPost.slug)}</guid>
+      <content:encoded>${wrapCdata(newPost.content)}</content:encoded>
     </item>
   </channel>`;
 
@@ -49,5 +90,167 @@ export async function generateMetadata(newPost: any) {
     image: newPost.image,
   };
   await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+}
+
+export async function invalidateCaches(newPost: any) {
+  try {
+    // Revalidate specific paths
+    revalidatePath('/api/sitemap/blog');
+    revalidatePath('/api/rss');
+    revalidatePath('/blogs');
+    revalidatePath(`/blogs/${newPost.slug}`);
+
+    // Ping search engines
+    await Promise.all([
+      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
+    ]);
+
+  } catch (error) {
+    console.error('Error invalidating caches:', error);
+  }
+}
+
+export async function generateRSSFeed(posts: BlogPostMetadata[]) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  
+  return `<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+      xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:atom="http://www.w3.org/2005/Atom"
+      xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+      xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
+      <channel>
+        <title>SocialTargeter Blog</title>
+        <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
+        <link>${baseUrl}</link>
+        <description>Latest insights on social media lead generation</description>
+        <language>en-US</language>
+        <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+        ${posts.map(post => `
+          <item>
+            <title>${escapeXml(post.title)}</title>
+            <link>${baseUrl}/blogs/${post.slug}</link>
+            <pubDate>${new Date(post.publishedDate).toUTCString()}</pubDate>
+            <guid isPermaLink="false">${baseUrl}/blogs/${post.slug}</guid>
+            <description>${escapeXml(post.excerpt)}</description>
+            <content:encoded><![CDATA[${post.content}]]></content:encoded>
+            <dc:creator>${escapeXml(post.author)}</dc:creator>
+          </item>
+        `).join('')}
+      </channel>
+    </rss>`;
+}
+
+// Add cache headers utility
+export function getSEOHeaders(maxAge: number = 3600) {
+  return {
+    'Content-Type': 'application/xml',
+    'Cache-Control': `public, max-age=${maxAge}, stale-while-revalidate=${maxAge * 2}`,
+    'X-Robots-Tag': 'noarchive'
+  };
+}
+
+export function generateBlogJsonLd(post: BlogPostMetadata) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    image: post.image ? [post.image] : [],
+    datePublished: post.publishedDate,
+    dateModified: post.modifiedDate,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'SocialTargeter',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/images/logo.png`
+      }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blogs/${post.slug}`
+    },
+    keywords: post.keywords?.join(', '),
+    articleBody: post.content,
+    wordCount: post.content.split(/\s+/).length,
+    inLanguage: 'en-US'
+  };
+}
+
+export function generateBlogMetadata(post: BlogPostMetadata) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  return {
+    title: `${post.title} | SocialTargeter Blog`,
+    description: post.excerpt,
+    authors: [{ name: post.author }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      publishedTime: post.publishedDate,
+      modifiedTime: post.modifiedDate,
+      authors: [post.author],
+      images: [
+        {
+          url: post.image,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+    },
+    alternates: {
+      canonical: `${baseUrl}/blogs/${post.slug}`,
+    }
+  };
+}
+
+export function generateArticleSchema(post: BlogPostMetadata) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: post.image,
+    datePublished: post.publishedDate,
+    dateModified: post.modifiedDate,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/author/${post.author.toLowerCase()}`
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'SocialTargeter',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png`
+      }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${post.slug}`
+    },
+    articleBody: post.content,
+    keywords: post.keywords?.join(','),
+    wordCount: post.content.split(/\s+/).length,
+    articleSection: 'Social Media Marketing'
+  };
 }
 
