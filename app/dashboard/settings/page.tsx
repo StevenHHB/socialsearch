@@ -5,11 +5,8 @@ import config from '@/config';
 import { useUser } from '@clerk/nextjs'
 
 export default function Settings() {
-  let user = null;
-
-  if (config?.auth?.enabled) {
-      user = useUser();
-  }
+  const userResult = useUser();
+  const user = config?.auth?.enabled ? userResult : null;
 
   return (
     <div className='flex justify-start items-center flex-wrap px-4 pt-5 gap-4'>

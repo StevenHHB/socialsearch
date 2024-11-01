@@ -13,10 +13,11 @@ import config from "@/config";
 import { cn } from "@/lib/utils";
 
 export default function NavBar() {
+    const auth = useAuth();
     let userId = null;
+
     if (config?.auth?.enabled) {
-        const user = useAuth();
-        userId = user?.userId;
+        userId = auth?.userId;
     }
 
     return (
