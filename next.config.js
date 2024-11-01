@@ -46,7 +46,10 @@ const nextConfig = {
       use: ["@svgr/webpack"]
     });
     return config;
-  }
+  },
+
+  // This is necessary for the sitemap to be generated correctly
+  output: 'standalone'
 };
 
 const withSvgr = require('next-svgr');

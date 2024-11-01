@@ -118,30 +118,15 @@ export async function POST(request: NextRequest) {
             throw error;
         }
 
+        // Update SEO-related content
         await Promise.all([
             updateSitemap(newPost),
             updateRSSFeed(newPost),
             generateMetadata(newPost),
         ]);
 
-        // Update SEO-related content
-        await Promise.all([
-            revalidatePath('/api/sitemap'),
-            revalidatePath('/api/sitemap/blog'),
-            revalidatePath('/api/sitemap/index'),
-            revalidatePath('/api/rss'),
-            revalidatePath('/blogs'),
-            revalidatePath(`/blogs/${slug}`),
-        ]);
-
-        // Notify search engines
-        await Promise.all([
-            fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
-            fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
-        ]);
-
         return NextResponse.json(newPost, { status: 201 });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error creating blog post:', error);
         return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
     }

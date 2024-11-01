@@ -7,50 +7,20 @@ import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
 export async function updateSitemap(newPost: BlogPostMetadata) {
   try {
-    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-    const sitemapContent = await fs.readFile(sitemapPath, 'utf-8');
+    // 1. 重新验证 sitemap.xml
+    await revalidatePath('/sitemap.xml');
     
-    // Parse existing sitemap
-    const parsed = await parseStringPromise(sitemapContent);
-    
-    // Add new URL
-    if (!parsed.urlset) {
-      parsed.urlset = { url: [] };
-    }
-
-    parsed.urlset.url.push({
-      loc: [`${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${escapeXml(newPost.slug)}`],
-      lastmod: [formatXmlDate(newPost.createdAt)],
-      changefreq: ['weekly'],
-      priority: ['0.7'],
-      'news:news': [{
-        'news:publication': [{
-          'news:name': ['SocialTargeter Blog'],
-          'news:language': ['en']
-        }],
-        'news:publication_date': [formatXmlDate(newPost.createdAt)],
-        'news:title': [escapeXml(newPost.title)]
-      }]
-    });
-
-    // Convert back to XML
-    const builder = new Builder();
-    const xml = builder.buildObject(parsed);
-    
-    await fs.writeFile(sitemapPath, xml);
-    
-    // Revalidate paths
+    // 2. 重新验证其他相关路径
     await Promise.all([
-      revalidatePath('/api/sitemap'),
-      revalidatePath('/api/sitemap/blog'),
-      revalidatePath('/api/sitemap/index'),
-      revalidatePath('/blogs')
+      revalidatePath('/blogs'),
+      revalidatePath(`/blogs/${newPost.slug}`),
+      revalidatePath('/api/rss')
     ]);
 
-    // Ping search engines
+    // 3. 通知搜索引擎
     await Promise.all([
-      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
-      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
+      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`)
     ]);
   } catch (error) {
     console.error('Error updating sitemap:', error);

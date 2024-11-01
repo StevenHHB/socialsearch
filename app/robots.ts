@@ -10,16 +10,14 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           '/',
           '/blogs/*',
-          '/api/sitemap/*',
-          '/api/rss'
+          '/sitemap.xml'
         ],
         disallow: [
           '/dashboard/*',
           '/api/*',
           '/*?*', // Block URLs with query parameters
           '/private/*',
-          '/*.json$', // Block direct JSON access
-          '/*.xml$' // Block direct XML access except sitemaps
+          '/*.json$' // Block direct JSON access
         ]
       },
       {
@@ -28,7 +26,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/*']
       }
     ],
-    sitemap: `${baseUrl}/api/sitemap/index`,
+    sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl,
   }
 }
