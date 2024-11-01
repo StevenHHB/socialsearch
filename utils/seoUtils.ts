@@ -7,6 +7,8 @@ import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
 export async function updateSitemap(newPost: BlogPostMetadata) {
   try {
+
+    console.log('updateSitemap called'); 
     // 1. 重新验证 sitemap.xml
     await revalidatePath('/sitemap.xml');
     
@@ -28,23 +30,10 @@ export async function updateSitemap(newPost: BlogPostMetadata) {
   }
 }
 
-export async function updateRSSFeed(newPost: BlogPostMetadata) {
-  const rssFeedPath = path.join(process.cwd(), 'public', 'rss.xml');
-  let rssFeed = await fs.readFile(rssFeedPath, 'utf-8');
-
-  const newItem = `
-    <item>
-      <title>${escapeXml(newPost.title)}</title>
-      <link>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${escapeXml(newPost.slug)}</link>
-      <description>${wrapCdata(newPost.excerpt)}</description>
-      <pubDate>${new Date(newPost.createdAt).toUTCString()}</pubDate>
-      <guid>${process.env.NEXT_PUBLIC_SITE_URL}/blog/${escapeXml(newPost.slug)}</guid>
-      <content:encoded>${wrapCdata(newPost.content)}</content:encoded>
-    </item>
-  </channel>`;
-
-  rssFeed = rssFeed.replace('</channel>', newItem);
-  await fs.writeFile(rssFeedPath, rssFeed);
+export async function updateRSSFeed() {
+  await Promise.all([
+    revalidatePath('/api/rss')
+  ]);
 }
 
 export async function generateMetadata(newPost: any) {

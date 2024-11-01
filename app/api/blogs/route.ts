@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { title, slug, content, excerpt, image, author } = body;
+        const { id, title, slug, content, excerpt, image, author } = body;
 
         // Validate input data
         if (!title || !slug || !content || !excerpt || !author) {
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         const { data: newPost, error } = await supabase
             .from('BlogPost')
             .insert([
-                { title, slug, content, excerpt, image, author }
+                { id, title, slug, content, excerpt, image, author }
             ])
             .select()
             .single();
@@ -121,8 +121,7 @@ export async function POST(request: NextRequest) {
         // Update SEO-related content
         await Promise.all([
             updateSitemap(newPost),
-            updateRSSFeed(newPost),
-            generateMetadata(newPost),
+            updateRSSFeed()
         ]);
 
         return NextResponse.json(newPost, { status: 201 });

@@ -18,6 +18,7 @@ async function getBlogPosts() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  console.log('sitemap called');
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
   // 1. 静态路由
