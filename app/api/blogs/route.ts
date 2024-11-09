@@ -66,10 +66,10 @@ export async function GET(request: NextRequest) {
             // Fetch all blog posts ordered by createdAt, excluding full content
             const { data: blogPosts, error } = await supabase
                 .from('posts')
-                .select('id, title, slug, excerpt, image, author, createdAt')
+                .select('id, title, slug, excerpt, image, author, published_at')
                 .eq('project_id', 4) 
-                .order('publishedAt', { ascending: false });
-
+                .eq('status', 'published')
+                .order('published_at', { ascending: false });
             if (error) {
                 throw error;
             }
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        console.log(`Blog post received: ${body}`)
-        const { id, title, slug, content, excerpt, image, author } = body;
-
+        console.log(`Blog post received: ${body.blog_post}`)
+        const { id, title, slug, content, excerpt, image, author } = body.blog_post;
+        console.log(title)
         // Validate input data
         if (!title || !slug || !content || !excerpt || !author) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
