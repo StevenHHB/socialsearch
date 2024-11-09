@@ -16,8 +16,8 @@ const validateApiKey = (request: NextRequest) => {
 
 export async function GET(request: NextRequest) {
     const supabase = createServerClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_KEY!,
+        process.env.BLOG_SUPABASE_URL!,
+        process.env.BLOG_SUPABASE_SERVICE_KEY!,
         { cookies: {} }
     );
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         if (slug) {
             console.log('Fetching blog post with slug:', slug);
             const { data: post, error } = await supabase
-                .from('BlogPost')
+                .from('posts')
                 .select('*')
                 .eq('slug', slug)
                 .single();
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         } else if (id) {
             // Fetch a single blog post by id
             const { data: post, error } = await supabase
-                .from('BlogPost')
+                .from('posts')
                 .select('*')
                 .eq('id', id)
                 .single();
@@ -65,9 +65,10 @@ export async function GET(request: NextRequest) {
         } else {
             // Fetch all blog posts ordered by createdAt, excluding full content
             const { data: blogPosts, error } = await supabase
-                .from('BlogPost')
+                .from('posts')
                 .select('id, title, slug, excerpt, image, author, createdAt')
-                .order('createdAt', { ascending: false });
+                .eq('project_id', 4) 
+                .order('publishedAt', { ascending: false });
 
             if (error) {
                 throw error;
@@ -87,14 +88,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = createServerClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_KEY!,
-        { cookies: {} }
-    );
-
     try {
         const body = await request.json();
+
+        console.log(`Blog post received: ${body}`)
         const { id, title, slug, content, excerpt, image, author } = body;
 
         // Validate input data
@@ -102,29 +99,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Create a new blog post
-        const { data: newPost, error } = await supabase
-            .from('BlogPost')
-            .insert([
-                { id, title, slug, content, excerpt, image, author }
-            ])
-            .select()
-            .single();
-
-        if (error) {
-            if (error.code === '23505') { // Unique constraint violation
-                return NextResponse.json({ error: 'Slug must be unique' }, { status: 400 });
-            }
-            throw error;
-        }
-
         // Update SEO-related content
         await Promise.all([
-            updateSitemap(newPost),
+            updateSitemap(body),
             updateRSSFeed()
         ]);
 
-        return NextResponse.json(newPost, { status: 201 });
+        return NextResponse.json(body, { status: 201 });
     } catch (error) {
         console.error('Error creating blog post:', error);
         return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
