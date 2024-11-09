@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
             const { data: blogPosts, error } = await supabase
                 .from('posts')
                 .select('id, title, slug, excerpt, image, author, published_at')
-                .eq('project_id', 4) 
+                .eq('project_id', process.env.SEO_ENGINE_PROJECT_KEY!) 
                 .eq('status', 'published')
                 .order('published_at', { ascending: false });
             if (error) {
