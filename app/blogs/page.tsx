@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 async function getBlogPosts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BLOG_URL}/api/blogs`, { cache: 'no-store' })
+    const res = await fetch(`${process.env.BLOG_API_URL}`, { cache: 'no-store' })
     if (!res.ok) {
       const errorText = await res.text()
       console.error('API response:', res.status, errorText)

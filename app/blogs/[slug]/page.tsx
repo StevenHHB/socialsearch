@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 async function getBlogPost(slug: string) {
   console.log('Fetching blog post with slug:', slug);
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BLOG_URL}/api/blogs?slug=${slug}`, { cache: 'no-store' });
+  const res = await fetch(`${process.env.BLOG_API_URL}?slug=${slug}`, { cache: 'no-store' });
   console.log('API response status:', res.status);
   
   if (!res.ok) {
