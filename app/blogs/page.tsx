@@ -85,7 +85,7 @@ export default async function BlogsPage() {
                   </CardContent>
                   <CardFooter className="flex justify-between items-center">
                     <div className="text-sm text-gray-500">
-                      By {post.author} • {new Date(post.createdAt).toLocaleDateString()}
+                      By {post.author} • {new Date(post.created_at).toLocaleDateString()}
                     </div>
                     <Button variant="ghost" className="text-[#ff6f2c] hover:text-[#ff6f2c]/90">
                       Read More <ArrowRight className="ml-2 h-4 w-4" />

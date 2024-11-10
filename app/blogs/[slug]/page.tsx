@@ -66,7 +66,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
             <User className="mr-2 h-4 w-4" />
             <span className="mr-4">{post.author}</span>
             <Calendar className="mr-2 h-4 w-4" />
-            <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString()}</time>
+            <time dateTime={post.created_at}>{new Date(post.created_at).toLocaleDateString()}</time>
           </div>
         </header>
 
