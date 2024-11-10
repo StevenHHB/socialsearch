@@ -18,6 +18,8 @@ export async function updateSitemap(newPost: BlogPostMetadata) {
       revalidatePath('/api/rss')
     ]);
 
+    console.log("[SITEMAP] Validate path done") 
+
     // 2. 通知搜索引擎
     await Promise.all([
       fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
@@ -25,6 +27,7 @@ export async function updateSitemap(newPost: BlogPostMetadata) {
       fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
       fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
     ]);
+    console.log("[SITEMAP] Ping done") 
   } catch (error) {
     console.error('Error updating sitemap:', error);
     throw error;

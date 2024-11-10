@@ -3,15 +3,15 @@ import { createServerClient } from "@supabase/ssr";
 
 async function getBlogPosts() {
   const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
+    process.env.BLOG_SUPABASE_URL!,
+    process.env.BLOG_SUPABASE_SERVICE_KEY!,
     { cookies: {} }
   );
 
   const { data: posts, error } = await supabase
-    .from('BlogPost')
-    .select('slug, title, createdAt, updatedAt')
-    .order('createdAt', { ascending: false });
+    .from('posts')
+    .select('slug, title, created_at, published_at')
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   return posts;
@@ -67,9 +67,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 3. 生成博客文章路由
   const blogRoutes = posts.map((post) => ({
     url: `${baseUrl}/blogs/${post.slug}`,
-    lastModified: new Date(post.updatedAt || post.createdAt),
+    lastModified: new Date(post.published_at || post.created_at),
     changeFrequency: 'daily' as const,
-    priority: 0.7,
+    priority: 0.75,
   }));
 
   // 4. 合并所有路由

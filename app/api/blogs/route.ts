@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
             updateSitemap(body),
             updateRSSFeed()
         ]);
-
+        console.log("Update Sitemap done")
         return NextResponse.json(body, { status: 201 });
     } catch (error) {
         console.error('Error creating blog post:', error);
