@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
             // Fetch all blog posts ordered by createdAt, excluding full content
             const { data: blogPosts, error } = await supabase
                 .from('posts')
-                .select('id, title, slug, excerpt, image, author, published_at')
+                .select('id, title, slug, excerpt, image, author, published_at, created_at')
                 .eq('project_id', process.env.SEO_ENGINE_PROJECT_KEY!) 
                 .eq('status', 'published')
                 .order('published_at', { ascending: false });
