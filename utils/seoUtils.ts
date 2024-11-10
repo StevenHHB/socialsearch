@@ -7,13 +7,27 @@ import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
 export async function updateSitemap(newPost: BlogPostMetadata) {
   try {
-
-    console.log('updateSitemap called'); 
-    // 1. 重新验证 sitemap.xml
-    await revalidatePath('/sitemap.xml');
+    // 1. 读取现有的 sitemap.xml
+    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+    const existingSitemap = await fs.readFile(sitemapPath, 'utf-8');
     
-    // 2. 重新验证其他相关路径
+    // 2. 解析并添加新的 URL
+    const { sitemap } = await parseStringPromise(existingSitemap);
+    sitemap.urlset.url.push({
+      loc: `${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${newPost.slug}`,
+      lastmod: new Date().toISOString(),
+      changefreq: 'daily',
+      priority: '0.7'
+    });
+
+    // 3. 写回文件
+    const builder = new Builder();
+    const updatedXml = builder.buildObject(sitemap);
+    await fs.writeFile(sitemapPath, updatedXml);
+
+    // 4. 重新验证路径
     await Promise.all([
+      revalidatePath('/sitemap.xml'), 
       revalidatePath('/blogs'),
       revalidatePath(`/blogs/${newPost.slug}`),
       revalidatePath('/api/rss')
