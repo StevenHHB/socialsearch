@@ -7,36 +7,23 @@ import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
 export async function updateSitemap(newPost: BlogPostMetadata) {
   try {
-    // 1. 读取现有的 sitemap.xml
-    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-    const existingSitemap = await fs.readFile(sitemapPath, 'utf-8');
-    
-    // 2. 解析并添加新的 URL
-    const { sitemap } = await parseStringPromise(existingSitemap);
-    sitemap.urlset.url.push({
-      loc: `${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${newPost.slug}`,
-      lastmod: new Date().toISOString(),
-      changefreq: 'daily',
-      priority: '0.7'
-    });
-
-    // 3. 写回文件
-    const builder = new Builder();
-    const updatedXml = builder.buildObject(sitemap);
-    await fs.writeFile(sitemapPath, updatedXml);
-
-    // 4. 重新验证路径
+    // 1. 重新验证路径
     await Promise.all([
       revalidatePath('/sitemap.xml'), 
+      revalidatePath('/api/sitemap/index'),
+      revalidatePath('/api/sitemap/blog'),
+      revalidatePath('/api/sitemap/static'),
       revalidatePath('/blogs'),
       revalidatePath(`/blogs/${newPost.slug}`),
       revalidatePath('/api/rss')
     ]);
 
-    // 3. 通知搜索引擎
+    // 2. 通知搜索引擎
     await Promise.all([
       fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
-      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`)
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
+      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
     ]);
   } catch (error) {
     console.error('Error updating sitemap:', error);
