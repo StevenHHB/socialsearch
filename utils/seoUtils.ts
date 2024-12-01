@@ -123,7 +123,7 @@ export function generateBlogJsonLd(post: BlogPostMetadata) {
     dateModified: post.modifiedDate,
     author: {
       '@type': 'Person',
-      name: post.author,
+      name: post.author
     },
     publisher: {
       '@type': 'Organization',
@@ -137,7 +137,7 @@ export function generateBlogJsonLd(post: BlogPostMetadata) {
       '@type': 'WebPage',
       '@id': `${baseUrl}/blogs/${post.slug}`
     },
-    keywords: post.keywords?.join(', '),
+    keywords: post.keywords ? post.keywords.split(',').map(k => k.trim()).join(', ') : undefined,
     articleBody: post.content,
     wordCount: post.content.split(/\s+/).length,
     inLanguage: 'en-US'
@@ -206,7 +206,7 @@ export function generateArticleSchema(post: BlogPostMetadata) {
       '@id': `${process.env.NEXT_PUBLIC_SITE_URL}/blogs/${post.slug}`
     },
     articleBody: post.content,
-    keywords: post.keywords?.join(','),
+    keywords: post.keywords ? post.keywords.split(',').map(k => k.trim()).join(',') : undefined,
     wordCount: post.content.split(/\s+/).length,
     articleSection: 'Social Media Marketing'
   };

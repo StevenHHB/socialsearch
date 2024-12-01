@@ -66,7 +66,7 @@ export interface BlogPostMetadata {
   modifiedDate: string;
   createdAt: string;
   updatedAt: string;
-  keywords?: string[];
+  keywords?: string;
   category?: string;
 }
 
