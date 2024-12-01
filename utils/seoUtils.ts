@@ -7,12 +7,9 @@ import { escapeXml, formatXmlDate, wrapCdata } from './xmlUtils';
 
 export async function updateSitemap(newPost: BlogPostMetadata) {
   try {
-    // 1. 重新验证路径
+    // Revalidate paths
     await Promise.all([
-      revalidatePath('/sitemap.xml'), 
-      revalidatePath('/api/sitemap/index'),
-      revalidatePath('/api/sitemap/blog'),
-      revalidatePath('/api/sitemap/static'),
+      revalidatePath('/sitemap.xml'),
       revalidatePath('/blogs'),
       revalidatePath(`/blogs/${newPost.slug}`),
       revalidatePath('/api/rss')
@@ -20,12 +17,10 @@ export async function updateSitemap(newPost: BlogPostMetadata) {
 
     console.log("[SITEMAP] Validate path done") 
 
-    // 2. 通知搜索引擎
+    // Notify search engines
     await Promise.all([
       fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
-      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
-      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
-      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`)
     ]);
     console.log("[SITEMAP] Ping done") 
   } catch (error) {
@@ -58,15 +53,15 @@ export async function generateMetadata(newPost: any) {
 export async function invalidateCaches(newPost: any) {
   try {
     // Revalidate specific paths
-    revalidatePath('/api/sitemap/blog');
+    revalidatePath('/sitemap.xml');
     revalidatePath('/api/rss');
     revalidatePath('/blogs');
     revalidatePath(`/blogs/${newPost.slug}`);
 
     // Ping search engines
     await Promise.all([
-      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`),
-      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/api/sitemap/index`)
+      fetch(`http://www.google.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`),
+      fetch(`http://www.bing.com/ping?sitemap=${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`)
     ]);
 
   } catch (error) {
@@ -216,4 +211,3 @@ export function generateArticleSchema(post: BlogPostMetadata) {
     articleSection: 'Social Media Marketing'
   };
 }
-

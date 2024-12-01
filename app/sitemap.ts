@@ -1,27 +1,29 @@
 import { MetadataRoute } from 'next'
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
 async function getBlogPosts() {
-  const supabase = createServerClient(
+  // Use direct Supabase client instead of SSR client during build
+  const supabase = createClient(
     process.env.BLOG_SUPABASE_URL!,
-    process.env.BLOG_SUPABASE_SERVICE_KEY!,
-    { cookies: {} }
+    process.env.BLOG_SUPABASE_SERVICE_KEY!
   );
 
   const { data: posts, error } = await supabase
-    .from('posts')
+    .from('contents')
     .select('slug, title, created_at, published_at')
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching blog posts for sitemap:', error);
+    return [];
+  }
   return posts;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  console.log('sitemap called');
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://socialtargeter.com';
 
-  // 1. 静态路由
+  // 1. Static routes
   const staticRoutes = [
     {
       url: baseUrl,
@@ -61,17 +63,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. 获取所有博客文章
-  const posts = await getBlogPosts();
-  
-  // 3. 生成博客文章路由
-  const blogRoutes = posts.map((post) => ({
-    url: `${baseUrl}/blogs/${post.slug}`,
-    lastModified: new Date(post.published_at || post.created_at),
-    changeFrequency: 'daily' as const,
-    priority: 0.75,
-  }));
+  try {
+    // 2. Get all blog posts
+    const posts = await getBlogPosts();
+    
+    // 3. Generate blog post routes
+    const blogRoutes = posts.map((post) => ({
+      url: `${baseUrl}/blogs/${post.slug}`,
+      lastModified: new Date(post.published_at || post.created_at),
+      changeFrequency: 'daily' as const,
+      priority: 0.75,
+    }));
 
-  // 4. 合并所有路由
-  return [...staticRoutes, ...blogRoutes];
+    // 4. Combine all routes
+    return [...staticRoutes, ...blogRoutes];
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    // Return static routes if blog posts can't be fetched
+    return staticRoutes;
+  }
 }
