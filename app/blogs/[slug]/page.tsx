@@ -64,7 +64,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           </h1>
           <div className="flex items-center text-gray-600 text-sm">
             <User className="mr-2 h-4 w-4" />
-            <span className="mr-4">{post.author}</span>
+            <span className="mr-4">SocialTargeter</span>
             <Calendar className="mr-2 h-4 w-4" />
             <time dateTime={post.created_at}>{new Date(post.created_at).toLocaleDateString()}</time>
           </div>
@@ -73,7 +73,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
         {post.image && (
           <div className="mb-8">
             <Image
-              src={post.image}
+              src={post.image_url}
               alt={post.title}
               width={1200}
               height={630}

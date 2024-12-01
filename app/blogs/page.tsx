@@ -77,15 +77,15 @@ export default async function BlogsPage() {
               <Link href={`/blogs/${post.slug}`} key={post.id} className="block hover:shadow-lg transition-shadow duration-300">
                 <Card className="flex flex-col h-full">
                   <CardHeader>
-                    <img src={post.image || '/images/default-blog-image.jpg'} alt={post.title} className="w-full h-48 object-cover rounded-t-lg" />
+                    <img src={post.image_url || '/images/default-blog-image.jpg'} alt={post.title} className="w-full h-48 object-cover rounded-t-lg" />
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <CardTitle className="text-2xl font-bold mb-2">{post.title}</CardTitle>
-                    <p className="text-gray-600 mb-4">{post.excerpt}</p>
+                    <p className="text-gray-600 mb-4">{post.meta_description}</p>
                   </CardContent>
                   <CardFooter className="flex justify-between items-center">
                     <div className="text-sm text-gray-500">
-                      By {post.author} • {new Date(post.created_at).toLocaleDateString()}
+                      By SocialTargeter • {new Date(post.created_at).toLocaleDateString()}
                     </div>
                     <Button variant="ghost" className="text-[#ff6f2c] hover:text-[#ff6f2c]/90">
                       Read More <ArrowRight className="ml-2 h-4 w-4" />

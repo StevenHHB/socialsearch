@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         if (slug) {
             console.log('Fetching blog post with slug:', slug);
             const { data: post, error } = await supabase
-                .from('posts')
+                .from('contents')
                 .select('*')
                 .eq('slug', slug)
                 .single();
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         } else if (id) {
             // Fetch a single blog post by id
             const { data: post, error } = await supabase
-                .from('posts')
+                .from('contents')
                 .select('*')
                 .eq('id', id)
                 .single();
@@ -65,8 +65,8 @@ export async function GET(request: NextRequest) {
         } else {
             // Fetch all blog posts ordered by createdAt, excluding full content
             const { data: blogPosts, error } = await supabase
-                .from('posts')
-                .select('id, title, slug, excerpt, image, author, published_at, created_at')
+                .from('contents')
+                .select('*')
                 .eq('project_id', process.env.SEO_ENGINE_PROJECT_KEY!) 
                 .eq('status', 'published')
                 .order('published_at', { ascending: false });
@@ -92,10 +92,10 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         console.log(`Blog post received: ${body.blog_post}`)
-        const { id, title, slug, content, excerpt, image, author } = body.blog_post;
+        const { id, title, slug, content, meta_description, image_url, author } = body.blog_post;
         console.log(title)
         // Validate input data
-        if (!title || !slug || !content || !excerpt || !author) {
+        if (!title || !slug || !content || !meta_description || !author) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
